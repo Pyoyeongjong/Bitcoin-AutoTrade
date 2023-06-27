@@ -13,6 +13,7 @@ import pprint
 
 # 보조지표 계산 라이브러리
 import talib
+import math
 
 # Numpy / pandas
 import numpy as np
@@ -53,8 +54,88 @@ def future_order(side, amount):
     return f_order
 
 
+# 선물 계좌 잔고/레버리지 출력
+def set_future_client_info(client, symbol, lev):
+    # USDT 잔고 출력
+    usdt_balance = None
+    futures_account = client.futures_account_balance()
+    for asset in futures_account:
+        if asset['asset'] == 'USDT':
+            usdt_balance = float(asset['balance'])
+            break
+    if usdt_balance is not None:
+        print(f"USDT 잔고: {usdt_balance}")
+    else:
+        print("USDT 잔고를 찾을 수 없습니다.")
+    # 레버리지 변경
+    leverage_info = client.futures_change_leverage(symbol=symbol, leverage=lev)
+    leverage = leverage_info['leverage']
+    print(f"레버리지: {leverage}")
+
+    # 최대 몇사토시까지 살 수 있는가?
+    # 비트코인 현재 가격
+    ticker = client.get_ticker(symbol=symbol)
+    current_price = ticker['lastPrice']
+    # 형 변환 / 최대 매수 사토시 계산
+    satoshi = math.floor(float(usdt_balance)*float(leverage)/float(current_price) * 1000) / 1000
+    print(f"최대 매수 가능 BTC: {satoshi}")
+    return leverage, satoshi
+
+
+
+def get_klines(client, symbol, limit, interval):
+    # klines 데이터 형태
+    # 0=Open time(ms), 1=Open, 2=High, 3=Low, 4=Close, 5=Voume,
+    # 6=Close time, 7=Quote asset vloume, 8=Number of trades
+    # 9=Taker buy base asset volume 10=Take buy quote asset volume [2차원 list]
+    klines_1m = client.get_klines(symbol=symbol, interval=interval, limit=limit)
+    col_name = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close Time', 'Quote', 'TradeNum', 'Taker buy base',
+                ' Taker buy quote', 'ignored']
+    return pd.DataFrame(klines_1m, columns=col_name)
+
+# 캔들 데이터 가져오기
+def get_candles(client, sym, limit):
+
+    candles_1m = get_klines(client, sym, limit, Client.KLINE_INTERVAL_1MINUTE)
+    candles_5m = get_klines(client, sym, limit, Client.KLINE_INTERVAL_5MINUTE)
+    candles_15m = get_klines(client, sym, limit, Client.KLINE_INTERVAL_15MINUTE)
+    candles_1h = get_klines(client, sym, limit, Client.KLINE_INTERVAL_1HOUR)
+    candles_4h = get_klines(client, sym, limit, Client.KLINE_INTERVAL_4HOUR)
+    candles_1d = get_klines(client, sym, limit, Client.KLINE_INTERVAL_1DAY)
+    candles_1w = get_klines(client, sym, limit, Client.KLINE_INTERVAL_1WEEK)
+
+    return candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_1d, candles_1w
+
+# SMA, RSI, VOL, VOL_SMA
+def get_candle_subdatas(candles):
+    ### 데이터 분석
+    # 문자열 -> 숫자 변환 && Pd Series
+    close = candles['Close'].apply(pd.to_numeric)  # 종가 값 활용
+    # Numpy밖에 못 쓴다 -> .to_numpy()
+    sma = pd.Series(talib.SMA(close.to_numpy(), timeperiod=20), name="SMA")
+    rsi = pd.Series(talib.RSI(close.to_numpy(), timeperiod=14), name="RSI")
+    volume = candles['Volume'].apply(pd.to_numeric)
+    volume_sma = pd.Series(talib.SMA(volume.to_numpy(), timeperiod=20), name="Vol_SMA")
+    datetime = pd.to_datetime(candles_1m['Time'], unit='ms')
+    datas = pd.concat([datetime, sma, rsi, volume, volume_sma], axis=1)
+
+    return datas
+
+
 # 메인 함수
 if __name__ == '__main__':
+
+    ### Initiation
+    # row 생략 없이 출력
+    pd.set_option('display.max_rows', 10)
+    # col 생략 없이 출력
+    pd.set_option('display.max_columns', None)
+    # 캔들 데이터 가져오기
+    symbol = "BTCUSDT"
+    limit = 500  # 가져올 분봉 데이터의 개수 (최대 500개까지 가능)
+    # 최대 매수 BTC / 레버리지
+    satoshi = None
+    leverage = None
 
     # 계좌 연결
     try:
@@ -67,52 +148,16 @@ if __name__ == '__main__':
         exit()
 
     # 선물 계좌 잔고 출력
-    usdt_balance = None
-    futures_account = client.futures_account_balance()
+    leverage, satoshi = set_future_client_info(client, symbol, 5)
 
-    for asset in futures_account:
-        if asset['asset'] == 'USDT':
-            usdt_balance = float(asset['balance'])
-            break
+    candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_ld, candles_lw = get_candles(client, symbol, limit)
 
-    if usdt_balance is not None:
-        print(f"USDT 잔고: {usdt_balance}")
-    else:
-        print("USDT 잔고를 찾을 수 없습니다.")
-
-    # 데이터 매개변수
-    symbol = "BTCUSDT"
-    interval = Client.KLINE_INTERVAL_1MINUTE  # 1분 분봉 데이터
-    limit = 100  # 가져올 분봉 데이터의 개수 (최대 500개까지 가능)
-
-    # klines 데이터 형태
-    # 0=Open time(ms), 1=Open, 2=High, 3=Low, 4=Close, 5=Voume,
-    # 6=Close time, 7=Quote asset vloume, 8=Number of trades
-    # 9=Taker buy base asset volume 10=Take buy quote asset volume [2차원 list]
-    klines = client.get_klines(symbol=symbol, interval=interval, limit=limit)
-    col_name=['Time','Open','High','Low','Close','Volume','Close Time','Quote','TradeNum','Taker buy base',' Taker buy quote', 'ignored']
-    candles = pd.DataFrame(klines, columns=col_name)
-
-    # 문자열 -> 숫자 변환 && Pd Series
-    close_1m = candles['Close'].apply(pd.to_numeric)
-
-    # Numpy밖에 못 쓴다. .to_numpy()
-    sma_1m = pd.Series(talib.SMA(close_1m.to_numpy(),timeperiod=20),name="SMA")
-    rsi_1m = pd.Series(talib.RSI(close_1m.to_numpy(),timeperiod=14),name="RSI")
-    volume_1m = candles['Volume'].apply(pd.to_numeric)
-    volume_sma_1m = pd.Series(talib.SMA(volume_1m.to_numpy(),timeperiod=20),name="Vol_SMA")
-
-    datetime = pd.to_datetime(candles['Time'], unit='ms')
-
-    info = pd.concat([datetime,sma_1m,rsi_1m,volume_1m,volume_sma_1m],axis=1)
-
-    # row 생략 없이 출력
-    pd.set_option('display.max_rows', None)
-    # col 생략 없이 출력
-    pd.set_option('display.max_columns', None)
-    print(info)
-
-    # Numpy
+    ### 보조지표 추출
+    info_1m = get_candle_subdatas(candles_1m)
+    info_5m = get_candle_subdatas(candles_5m)
+    info_15m = get_candle_subdatas(candles_15m)
+    info_1h = get_candle_subdatas(candles_1h)
+    print(info_15m)
 
     #print(sma_1m)
     #print(rsi_1m)
