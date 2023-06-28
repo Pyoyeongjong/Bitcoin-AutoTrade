@@ -18,6 +18,7 @@ import math
 # Numpy / pandas
 import numpy as np
 import pandas as pd
+import pytz
 
 
 client = None
@@ -53,20 +54,26 @@ def future_order(side, amount):
     )
     return f_order
 
+# USDT 잔고 출력
+def get_usdt_balance(client):
 
-# 선물 계좌 잔고/레버리지 출력
-def set_future_client_info(client, symbol, lev):
-    # USDT 잔고 출력
     usdt_balance = None
     futures_account = client.futures_account_balance()
     for asset in futures_account:
-        if asset['asset'] == 'USDT':
+        if asset['asset'] == "USDT":
             usdt_balance = float(asset['balance'])
             break
     if usdt_balance is not None:
         print(f"USDT 잔고: {usdt_balance}")
     else:
         print("USDT 잔고를 찾을 수 없습니다.")
+    return usdt_balance
+
+# 선물 계좌 잔고/레버리지 출력
+def set_future_client_info(client, symbol, lev):
+
+    usdt_balance = get_usdt_balance(client)
+
     # 레버리지 변경
     leverage_info = client.futures_change_leverage(symbol=symbol, leverage=lev)
     leverage = leverage_info['leverage']
@@ -76,9 +83,9 @@ def set_future_client_info(client, symbol, lev):
     # 비트코인 현재 가격
     ticker = client.get_ticker(symbol=symbol)
     current_price = ticker['lastPrice']
-    # 형 변환 / 최대 매수 사토시 계산
+    # 형 변환 / 최대 가용 사토시 계산
     satoshi = math.floor(float(usdt_balance)*float(leverage)/float(current_price) * 1000) / 1000
-    print(f"최대 매수 가능 BTC: {satoshi}")
+    print(f"최대 매수(매도) 가능 BTC: {satoshi}")
     return leverage, satoshi
 
 
@@ -116,11 +123,96 @@ def get_candle_subdatas(candles):
     rsi = pd.Series(talib.RSI(close.to_numpy(), timeperiod=14), name="RSI")
     volume = candles['Volume'].apply(pd.to_numeric)
     volume_sma = pd.Series(talib.SMA(volume.to_numpy(), timeperiod=20), name="Vol_SMA")
-    datetime = pd.to_datetime(candles_1m['Time'], unit='ms')
+    # 한국 시간으로 맞춰주기 + DateTime으로 변환
+    korea_tz = pytz.timezone('Asia/Seoul')
+    datetime = pd.to_datetime(candles['Time'], unit='ms')
+    datetime = datetime.dt.tz_localize(pytz.utc).dt.tz_convert(korea_tz)
+    # 연결
     datas = pd.concat([datetime, sma, rsi, volume, volume_sma], axis=1)
 
     return datas
 
+
+# 저점 구하는 함수
+# Low값을 활용 + Array 숫자 변환 후 사용
+def is_low_point(point, candles):
+    count = 0
+    temp_low = candles[point]
+    for i in range(-8,9): # 좌우 8개의 값을 비교
+        if candles[point+i]<temp_low:
+            count+=1 # 꼭 저점 아니어도 저점 부근이면 OK
+    if count>1:
+        return False
+    else:
+        return True
+
+
+# 고점 구하는 함수
+# High값을 활용 + Array 숫자 변환 후 사용
+def is_high_point(point, candles):
+    count = 0
+    temp_low = candles[point]
+    for i in range(-8,9): # 좌우 8개의 값을 비교
+        if candles[point+i]>temp_low:
+            count+=1 # 꼭 고점 아니어도 고점 부근이면 OK
+    if count>1:
+        return False
+    else:
+        return True
+
+# 하락 다이버전스 발견 (과거부터 탐색 -> 처움 만나는 다이버전스 Return) = 과거 Test 용
+def detect_bearish_divergence(candles, candles_info, bottom):
+    frlp = None # First RSI Low Point
+    srlp = None # Second RSI Low Point
+    print(f"[Start - BEAR]")
+    print("[First]")
+    for i, e in enumerate(candles_info['RSI']):
+        if e <= bottom:
+            print(candles_info["Time"][i], e)
+            if is_low_point(i, candles['Low'].apply(pd.to_numeric).to_list()):
+                frlp = i
+                break
+
+    while 1:
+        print("[Second]")
+        for i, e in enumerate(candles_info['RSI'][frlp+1:], start=frlp+1):
+            if e <= bottom:
+                print(candles_info["Time"][i], e)
+                if is_low_point(i, candles["Low"].apply(pd.to_numeric).to_list()):
+                    srlp = i
+                    break
+        print(frlp, srlp)
+        if candles['Low'][frlp] < candles['Low'][srlp] or candles_info['RSI'][frlp] > candles_info['RSI'][srlp]:
+            frlp = srlp
+        else:
+            return frlp, srlp
+
+
+def detect_bullish_divergence(candles, candles_info, top):
+    frhp = None # First RSI Low Point
+    srhp = None # Second RSI Low Point
+    print(f"[Start - BULL]")
+    print("[First]")
+    for i, e in enumerate(candles_info['RSI']):
+        if e >= top:
+            print(candles_info["Time"][i], e)
+            if is_high_point(i, candles['High'].apply(pd.to_numeric).to_list()):
+                frhp = i
+                break
+
+    while 1:
+        print("[Second]")
+        for i, e in enumerate(candles_info['RSI'][frhp+1:], start=frhp+1):
+            if e >= top:
+                print(candles_info["Time"][i], e)
+                if is_high_point(i, candles["High"].apply(pd.to_numeric).to_list()):
+                    srhp = i
+                    break
+        print(frhp, srhp)
+        if candles['High'][frhp] < candles['High'][srhp] or candles_info['RSI'][frhp] > candles_info['RSI'][srhp]:
+            frhp = srhp
+        else:
+            return frhp, srhp
 
 # 메인 함수
 if __name__ == '__main__':
@@ -147,30 +239,17 @@ if __name__ == '__main__':
         print(e)
         exit()
 
-    # 선물 계좌 잔고 출력
-    leverage, satoshi = set_future_client_info(client, symbol, 5)
-
+    # Client 정보 설정 및 잔고 출력
+    get_usdt_balance(client)
+    # leverage, satoshi = set_future_client_info(client, symbol, 5)
+    # 캔들 정보 가져오기
     candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_ld, candles_lw = get_candles(client, symbol, limit)
-
     ### 보조지표 추출
-    info_1m = get_candle_subdatas(candles_1m)
-    info_5m = get_candle_subdatas(candles_5m)
-    info_15m = get_candle_subdatas(candles_15m)
-    info_1h = get_candle_subdatas(candles_1h)
-    print(info_15m)
+    candles_info_4h = get_candle_subdatas(candles_4h)
 
-    #print(sma_1m)
-    #print(rsi_1m)
-    # while True:
-    #     inputC = input("사기:B, 팔기:S ")
-    #     if inputC == 'B':
-    #         num = input("수량을 입력하세요: ")
-    #         future_order(SIDE_BUY, num)
-    #         print("매수 완료")
-    #     elif inputC == 'S':
-    #         num = input("수량을 입력하세요: ")
-    #         future_order(SIDE_SELL, num)
-    #         print("매도 완료")
 
+    # 하락 다이버전스
+    print(detect_bearish_divergence(candles_4h, candles_info_4h, 30))
+    print(detect_bullish_divergence(candles_4h, candles_info_4h, 70))
 
 
