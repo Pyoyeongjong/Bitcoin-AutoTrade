@@ -20,7 +20,10 @@ import numpy as np
 import pandas as pd
 import pytz
 
+# 클라이언트 변수
 client = None
+# 현재 매수 중인지 확인하는 변수
+isOrdered = False
 
 # API 파일 경로
 api_key_file_path = "api.txt"
@@ -56,6 +59,10 @@ def future_order(side, amount):
         type=ORDER_TYPE_MARKET,
         quantity=amount
     )
+    if isOrdered is True:
+        isOrdered = False
+    else:
+        isOrdered = True
     return f_order
 
 # USDT 잔고 출력
@@ -79,9 +86,15 @@ def set_future_client_info(client, symbol, lev):
     usdt_balance = get_usdt_balance(client)
 
     # 레버리지 변경
-    leverage_info = client.futures_change_leverage(symbol=symbol, leverage=lev)
-    leverage = leverage_info['leverage']
-    print(f"레버리지: {leverage}")
+    if isOrdered is False:
+        try:
+            leverage_info = client.futures_change_leverage(symbol=symbol, leverage=lev)
+            leverage = leverage_info['leverage']
+            print(f"레버리지: {leverage}")
+        except BinanceAPIException as e:
+            print(e)
+    else:
+        print("현재 포지션을 가지고 있어 레버리지가 변경되지 않습니다.")
 
     # 최대 몇사토시까지 살 수 있는가?
     # 비트코인 현재 가격
@@ -281,6 +294,19 @@ def spectate_bullish_divergence(candles, candles_info, top):
     else:
         return False
 
+# 현재 포지션 설정
+def get_position(positions, symbol):
+    for position in positions:
+        if position['symbol'] == symbol:
+            if float(position['positionAmt']) > 0:
+                print("현재 포지션 : Long")
+                isOrdered = True
+            elif float(position['positionAmt']) < 0:
+                print("현재 포지션 : Short")
+                isOrdered = True
+            else:
+                print("현재 포지션 : 없음")
+                isOrdered = False
 # 메인 함수
 if __name__ == '__main__':
 
@@ -307,9 +333,12 @@ if __name__ == '__main__':
         print(e)
         exit()
 
+    ## 현재 포지션 정보
+    positions = client.futures_position_information()
+    get_position(positions, symbol)
     ### Client 정보 설정 및 잔고 출력
-    get_usdt_balance(client)
-    # leverage, satoshi = set_future_client_info(client, symbol, 5) // 현재 거래 중일 시 레버리지 움직이면 오류.
+    # get_usdt_balance(client)
+    leverage, satoshi = set_future_client_info(client, symbol, 3) # 현재 거래 중일 시 레버리지 움직이면 오류.
 
     ### 캔들 정보 가져오기
     candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_ld, candles_lw = get_candles(client, symbol, limit)
