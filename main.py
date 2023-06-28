@@ -20,16 +20,21 @@ import numpy as np
 import pandas as pd
 import pytz
 
-
 client = None
-binance_access_key = "CfczETU6grhIBePjrVXclSLPAxtNWmoT7QycenRbPQKLXRzKtCuZ8O6Xq58n8Kpz"
-binance_secret_key = "YUrtnHnHAMVKRgB5rR6ySybREx6MpnabT1tlPZiWSBhQN5cQH9RMQcjT7BIpuupB"
 
+# API 파일 경로
+api_key_file_path = "api.txt"
+
+# API 키를 읽어오는 함수
+def read_api_keys(file_path):
+    with open(file_path, "r") as file:
+        api_key = file.readline().strip()
+        api_secret = file.readline().strip()
+    return api_key, api_secret
 
 # 디버그 프린트용
 def print_hi(name):
     print(f'Hi, {name}')
-
 
 # 시스템 시간 동기화
 def set_system_time(serv_time):
@@ -42,7 +47,6 @@ def set_system_time(serv_time):
                            gmtime[4],
                            gmtime[5],
                            0)
-
 
 # 선물 거래 ( Not Margin!! )
 def future_order(side, amount):
@@ -87,7 +91,6 @@ def set_future_client_info(client, symbol, lev):
     satoshi = math.floor(float(usdt_balance)*float(leverage)/float(current_price) * 1000) / 1000
     print(f"최대 매수(매도) 가능 BTC: {satoshi}")
     return leverage, satoshi
-
 
 # 캔들 기본 데이터
 def get_klines(client, symbol, limit, interval):
@@ -143,20 +146,20 @@ def get_candle_subdatas(candles):
 
     return datas
 
-
 # 저점 구하는 함수
 # Low값을 활용 + Array 숫자 변환 후 사용
 def is_low_point(point, candles):
     count = 0
     temp_low = candles[point]
     for i in range(-8,9): # 좌우 8개의 값을 비교
+        if point+i >= len(candles):
+            break
         if candles[point+i]<temp_low:
-            count+=1 # 꼭 저점 아니어도 저점 부근이면 OK
-    if count>0:
+            count+=1 #
+    if count>0: # 꼭 저점 아니어도 저점 부근이면 OK
         return False
     else:
         return True
-
 
 # 고점 구하는 함수
 # High값을 활용 + Array 숫자 변환 후 사용
@@ -165,8 +168,10 @@ def is_high_point(point, candles):
     temp_low = candles[point]
     for i in range(-8,9): # 좌우 8개의 값을 비교
         if candles[point+i]>temp_low:
-            count+=1 # 꼭 고점 아니어도 고점 부근이면 OK
-    if count>0:
+            count+=1
+        if point+i >= len(candles):
+            break
+    if count>0: # 꼭 고점 아니어도 고점 부근이면 OK
         return False
     else:
         return True
@@ -175,11 +180,8 @@ def is_high_point(point, candles):
 def detect_bearish_divergence(candles, candles_info, bottom):
     frlp = None # First RSI Low Point
     srlp = None # Second RSI Low Point
-    print(f"[Start - BEAR]")
-    print("[First]")
     for i, e in enumerate(candles_info['RSI']):
         if e <= bottom:
-            print(candles_info["Time"][i], e)
             if is_low_point(i, candles['Low'].apply(pd.to_numeric).to_list()):
                 frlp = i
                 break
@@ -188,10 +190,8 @@ def detect_bearish_divergence(candles, candles_info, bottom):
         return 0
 
     while 1:
-        print("[Second]")
         for i, e in enumerate(candles_info['RSI'][frlp+1:], start=frlp+1):
             if e <= bottom:
-                print(candles_info["Time"][i], e)
                 if is_low_point(i, candles["Low"].apply(pd.to_numeric).to_list()):
                     srlp = i
                     break
@@ -199,21 +199,42 @@ def detect_bearish_divergence(candles, candles_info, bottom):
         if srlp is None:
             return 0
 
-        print(frlp, srlp)
         if candles['Low'][frlp] < candles['Low'][srlp] or candles_info['RSI'][frlp] > candles_info['RSI'][srlp]:
             frlp = srlp
         else:
-            return frlp, srlp
+            return candles_info['Time'][frlp], candles_info['Time'][srlp]
+
+# 하락 다이버전스 감시 (현재 데이터에서 다이버전스가 일어났나?), 일반 다이버전스만 구현.
+def spectate_bearish_divergence(candles, candles_info, bottom):
+
+    rlp_1 = None # First RSI Low Point // 최근에 가까운 기준
+    rlp_2 = None # Second RSI Low Point # 삼중, 사중 다이버전스 후보군
+    rlp_3 = None # Third RSI Low Point
+
+    # 가장 최근 RSI 저점 구하기
+    for i, v in reversed(list(enumerate(candles_info['RSI']))):
+        if v <= bottom:
+            if is_low_point(i, candles['Low'].apply(pd.to_numeric).to_list()):
+                rlp_1 = i
+                break
+
+    if rlp_1 is None:
+        return False
+
+    now_point = len(candles)
+
+    if candles['Low'][now_point-2] < candles['Low'][rlp_1] and candles_info['RSI'][now_point-2] > candles_info['RSI'][rlp_1]:
+        return True
+    else:
+        return False
 
 # 상승 다이버전스 발견 (과거부터 탐색 -> 처움 만나는 다이버전스 Return) = 과거 Test 용
 def detect_bullish_divergence(candles, candles_info, top):
     frhp = None # First RSI Low Point
     srhp = None # Second RSI Low Point
-    print(f"[Start - BULL]")
-    print("[First]")
+
     for i, e in enumerate(candles_info['RSI']):
         if e >= top:
-            print(candles_info["Time"][i], e)
             if is_high_point(i, candles['High'].apply(pd.to_numeric).to_list()):
                 frhp = i
                 break
@@ -222,10 +243,8 @@ def detect_bullish_divergence(candles, candles_info, top):
         return 0
 
     while 1:
-        print("[Second]")
         for i, e in enumerate(candles_info['RSI'][frhp+1:], start=frhp+1):
             if e >= top:
-                print(candles_info["Time"][i], e)
                 if is_high_point(i, candles["High"].apply(pd.to_numeric).to_list()):
                     srhp = i
                     break
@@ -233,11 +252,34 @@ def detect_bullish_divergence(candles, candles_info, top):
         if srhp is None:
             return 0
 
-        print(frhp, srhp)
         if candles['High'][frhp] > candles['High'][srhp] or candles_info['RSI'][frhp] < candles_info['RSI'][srhp]:
             frhp = srhp
         else:
-            return frhp, srhp
+            return candles_info['Time'][frhp], candles_info['Time'][srhp]
+
+# 상승 다이버전스 감시 (현재 데이터에서 다이버전스가 일어났나?), 일반 다이버전스만 구현.
+def spectate_bullish_divergence(candles, candles_info, top):
+
+    rhp_1 = None # RSI High Point // 최근에 가까운 기준
+    rhp_2 = None # Second RSI High Point # 삼중, 사중 다이버전스 후보군
+    rhp_3 = None # Third RSI High Point
+
+    # 가장 최근 RSI 저점 구하기
+    for i, v in reversed(list(enumerate(candles_info['RSI']))):
+        if v >= top:
+            if is_low_point(i, candles['High'].apply(pd.to_numeric).to_list()):
+                rlp_1 = i
+                break
+
+    if rhp_1 is None:
+        return False
+
+    now_point = len(candles)
+
+    if candles['Low'][now_point-2] > candles['Low'][rhp_1] and candles_info['RSI'][now_point-2] < candles_info['RSI'][rlp_1]:
+        return True
+    else:
+        return False
 
 # 메인 함수
 if __name__ == '__main__':
@@ -255,6 +297,7 @@ if __name__ == '__main__':
     leverage = None
 
     # 계좌 연결
+    binance_access_key, binance_secret_key = read_api_keys(api_key_file_path)
     try:
         client = Client(binance_access_key, binance_secret_key)
         server_time = client.get_server_time()
@@ -264,23 +307,27 @@ if __name__ == '__main__':
         print(e)
         exit()
 
-    # Client 정보 설정 및 잔고 출력
+    ### Client 정보 설정 및 잔고 출력
     get_usdt_balance(client)
     # leverage, satoshi = set_future_client_info(client, symbol, 5) // 현재 거래 중일 시 레버리지 움직이면 오류.
-    # 캔들 정보 가져오기
 
-    # candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_ld, candles_lw = get_candles(client, symbol, limit)
-    # 캔들 정보 가져오기 (특정 시각)
-    start_time = datetime(2023, 5, 20)
-    end_time = datetime(2023, 6, 26)
-    candles_15m = get_klines_by_date(client, symbol, limit, Client.KLINE_INTERVAL_15MINUTE, start_time, end_time)
+    ### 캔들 정보 가져오기
+    candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_ld, candles_lw = get_candles(client, symbol, limit)
+
+    ### 캔들 정보 가져오기 (특정 시각)
+    # start_time = datetime(2023, 5, 20)
+    # end_time = datetime(2023, 6, 26)
+    # candles_15m = get_klines_by_date(client, symbol, limit, Client.KLINE_INTERVAL_15MINUTE, start_time, end_time)
+
     ### 보조지표 추출
     candles_info_15m = get_candle_subdatas(candles_15m)
-    print(candles_info_15m)
 
+    ### 하락 다이버전스 발견(과거 데이터)
+    # print(detect_bearish_divergence(candles_15m, candles_info_15m, 30))
+    # print(detect_bullish_divergence(candles_15m, candles_info_15m, 70))
 
-    # 하락 다이버전스
-    print(detect_bearish_divergence(candles_15m, candles_info_15m, 30))
-    print(detect_bullish_divergence(candles_15m, candles_info_15m, 70))
-
+    ### 하락 다이버전스 감지(현재 데이터)
+    # 문제 : 이걸 분마다 계산하는 게 이득일까? 다른 데 저장해놨다가 새로 들어오는 분에 대해서만 새로운 연산을 수행하면 되지 않나? -> 최적화 문제
+    # print(spectate_bearish_divergence(candles_15m, candles_info_15m, 30))
+    # print(spectate_bullish_divergence(candles_15m, candles_info_15m, 70))
 
