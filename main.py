@@ -83,10 +83,14 @@ def get_usdt_balance(client):
 # 선물 계좌 잔고/레버리지 출력
 def set_future_client_info(client, symbol, lev):
 
-    usdt_balance = get_usdt_balance(client)
+    global isOrdered
+    leverage = None
+    satoshi = None
 
+    usdt_balance = get_usdt_balance(client)
     # 레버리지 변경
     if isOrdered is False:
+        print(isOrdered)
         try:
             leverage_info = client.futures_change_leverage(symbol=symbol, leverage=lev)
             leverage = leverage_info['leverage']
@@ -101,7 +105,8 @@ def set_future_client_info(client, symbol, lev):
     ticker = client.get_ticker(symbol=symbol)
     current_price = ticker['lastPrice']
     # 형 변환 / 최대 가용 사토시 계산
-    satoshi = math.floor(float(usdt_balance)*float(leverage)/float(current_price) * 1000) / 1000
+    if leverage is not None:
+        satoshi = math.floor(float(usdt_balance)*float(leverage)/float(current_price) * 1000) / 1000
     print(f"최대 매수(매도) 가능 BTC: {satoshi}")
     return leverage, satoshi
 
@@ -296,6 +301,9 @@ def spectate_bullish_divergence(candles, candles_info, top):
 
 # 현재 포지션 설정
 def get_position(positions, symbol):
+
+    global isOrdered
+
     for position in positions:
         if position['symbol'] == symbol:
             if float(position['positionAmt']) > 0:
@@ -307,6 +315,40 @@ def get_position(positions, symbol):
             else:
                 print("현재 포지션 : 없음")
                 isOrdered = False
+
+
+# 기울기 구하는 함수 # close는 Array, Numeric
+def calculate_incline(close, i, j):
+    return (close[j]-close[i])/(j-i)/(close[i])*1000
+
+### 장 추세 구별 함수
+# 종가 기준 기울기를 통해 현재 장이 상승장 or 하락장을 구분할 것임
+# 최소 1시간 이상 봉을 이용하는 게 좋아 보인다.
+# cal 일봉:9.0 4시간봉:1 1시간봉:0.2 사용하자
+def calculate_trends(candles, candles_info, cal, start):
+
+    # i = 인덱스, e = 종가
+    for i, e in enumerate(candles['Close'][start:], start=start):
+        sum_inclination = 0
+        count = 0
+        for j in range(-10 ,0):
+            if i+j<0 or i+j>=len(candles) or j==0:
+                continue
+            sum_inclination += calculate_incline(candles["Close"].apply(pd.to_numeric).to_list(), i, i+j)
+            count+=1
+        if count == 0:
+            continue
+        inclination_mean = sum_inclination / count
+        if inclination_mean > cal: # 일봉 기준 9.0
+            trends = "상승장"
+        elif inclination_mean < -cal:
+            trends = "하락장"
+        else:
+            trends = "횡보장"
+
+    return trends # 하루 데이터만 출력하도록 ( 임시 )
+
+
 # 메인 함수
 if __name__ == '__main__':
 
@@ -337,19 +379,18 @@ if __name__ == '__main__':
     positions = client.futures_position_information()
     get_position(positions, symbol)
     ### Client 정보 설정 및 잔고 출력
-    # get_usdt_balance(client)
-    leverage, satoshi = set_future_client_info(client, symbol, 3) # 현재 거래 중일 시 레버리지 움직이면 오류.
+    get_usdt_balance(client)
+    #leverage, satoshi = set_future_client_info(client, symbol, 3) # 현재 거래 중일 시 레버리지 움직이면 오류.
 
     ### 캔들 정보 가져오기
-    candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_ld, candles_lw = get_candles(client, symbol, limit)
+    candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_1d, candles_1w = get_candles(client, symbol, limit)
 
     ### 캔들 정보 가져오기 (특정 시각)
     # start_time = datetime(2023, 5, 20)
     # end_time = datetime(2023, 6, 26)
     # candles_15m = get_klines_by_date(client, symbol, limit, Client.KLINE_INTERVAL_15MINUTE, start_time, end_time)
-
     ### 보조지표 추출
-    candles_info_15m = get_candle_subdatas(candles_15m)
+    candles_info_1d = get_candle_subdatas(candles_1d)
 
     ### 하락 다이버전스 발견(과거 데이터)
     # print(detect_bearish_divergence(candles_15m, candles_info_15m, 30))
@@ -359,4 +400,7 @@ if __name__ == '__main__':
     # 문제 : 이걸 분마다 계산하는 게 이득일까? 다른 데 저장해놨다가 새로 들어오는 분에 대해서만 새로운 연산을 수행하면 되지 않나? -> 최적화 문제
     # print(spectate_bearish_divergence(candles_15m, candles_info_15m, 30))
     # print(spectate_bullish_divergence(candles_15m, candles_info_15m, 70))
+
+    ### 장 추세 계산함수 (일봉 9.0, 4시간봉 1.5, 1시간봉 0.3) 오늘 계산 = 499
+    # print(calculate_trends(candles_1d, candles_info_1d, 9.0, 499))
 
