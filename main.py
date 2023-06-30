@@ -233,7 +233,7 @@ def detect_bearish_divergence(candles, candles_info, bottom, k):
         if candles['Low'][frlp] < candles['Low'][srlp] or candles_info['RSI'][frlp] > candles_info['RSI'][srlp]:
             frlp = srlp
         else:
-            return candles_info['Time'][frlp], candles_info['Time'][srlp], srlp+1
+            return candles_info['Time'][frlp], candles_info['Time'][srlp], srlp+1, srlp-frlp
 
 def detect_bearish_divergences(candles, candles_info, bottom):
     bear_div_list = []
@@ -245,8 +245,9 @@ def detect_bearish_divergences(candles, candles_info, bottom):
             return bear_div_list
         else:
             print(result)
-            time1, time2, next = result
-            bear_div_list.append([time1, time2])
+            time1, time2, next, term = result
+            if term < 60: # 봉 간 60개 이상 차이가 안 나야 한다.
+                bear_div_list.append([time1, time2])
             k = next
 
     # bear_div_list.append((time1, time2))
@@ -374,6 +375,8 @@ def calculate_incline(close, i, j):
 # cal 일봉:9.0 4시간봉:1 1시간봉:0.2 사용하자
 def calculate_trends(candles, candles_info, cal, start):
 
+    trends = None
+
     # i = 인덱스, e = 종가
     for i, e in enumerate(candles['Close'][start:], start=start):
         sum_inclination = 0
@@ -392,6 +395,8 @@ def calculate_trends(candles, candles_info, cal, start):
             trends = "하락장"
         else:
             trends = "횡보장"
+
+        print(trends)
 
     return trends # 하루 데이터만 출력하도록 ( 임시 )
 
@@ -430,7 +435,7 @@ if __name__ == '__main__':
     #leverage, satoshi = set_future_client_info(client, symbol, 3) # 현재 거래 중일 시 레버리지 움직이면 오류.
 
     ### 캔들 정보 가져오기 (현재)
-    # candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_1d, candles_1w = get_candles(client, symbol, limit)
+    candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_1d, candles_1w = get_candles(client, symbol, limit)
 
     ### 캔들 정보 가져오기 (특정 시각)
     # start_time = datetime(2023, 5, 20)
@@ -438,22 +443,28 @@ if __name__ == '__main__':
     # candles_15m = get_klines_by_date(client, symbol, limit, Client.KLINE_INTERVAL_15MINUTE, start_time, end_time)
 
     ### 과거 데이터 (Timestamp 뭔가 이상함. csv파일)
-    # candles_history_1h = pd.read_csv("candle_data/candle_data_1h.csv")
-    # candles_history_info_1h = get_candle_subdatas(candles_history_1h)
+    # candles_history_15m = pd.read_csv("candle_data/candle_data_15m.csv")
+    # candles_history_info_15m = get_candle_subdatas(candles_history_15m)
 
     ### 보조지표 추출
     # candles_info_15m = get_candle_subdatas(candles_15m)
+    # candles_info_1d = get_candle_subdatas(candles_1d)
     # print(candles_info_1d)
 
     ### 하락 다이버전스 발견(과거 데이터)(리스트 형식) 출력 = [(time1, time2)]
     # print(detect_bullish_divergences(candles_15m, candles_info_15m, 70))
-    # print(detect_bearish_divergences(candles_15m, candles_info_15m, 30))
+    # print(detect_bearish_divergences(candles_history_15m, candles_history_info_15m, 30))
 
     ### 하락 다이버전스 감지(현재 데이터)
     # 문제 : 이걸 분마다 계산하는 게 이득일까? 다른 데 저장해놨다가 새로 들어오는 분에 대해서만 새로운 연산을 수행하면 되지 않나? -> 최적화 문제
     # print(spectate_bearish_divergence(candles_15m, candles_info_15m, 30))
     # print(spectate_bullish_divergence(candles_15m, candles_info_15m, 70))
 
-    ### 장 추세 계산함수 (일봉 9.0, 4시간봉 1.5, 1시간봉 0.3) 오늘 계산 = 499
-    # print(calculate_trends(candles_1d, candles_info_1d, 9.0, 499))
+    ### 장 추세 계산함수 (일봉 9.0, 4시간봉 1.5, 1시간봉 0.3) 오늘 계산 = len(candles)-1
+    # print(calculate_trends(candles_1d, candles_info_1d, 9.0, len(candles_1d)-1))
 
+    # ------------------------------------------------------------------------------------ #
+
+    candles_history_1d = pd.read_csv("candle_data/candle_data_1d.csv")
+    candles_history_info_1d = get_candle_subdatas(candles_history_1d)
+    print(calculate_trends(candles_history_1d, candles_history_info_1d, 9.0, len(candles_history_1d) - 1000))
