@@ -10,7 +10,7 @@ filepath = os.path.join(data_dir, filename)
 
 with open(filepath, 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow(['Tiem', 'Open', 'High', 'Low', 'Close', 'Volume'])
+    writer.writerow(['Time', 'Open', 'High', 'Low', 'Close', 'Volume'])
 
     print("Open Ok")
 
@@ -18,7 +18,7 @@ with open(filepath, 'w', newline='') as csvfile:
     print("Get Candles OK")
 
     for k in klines:
-        timestamp = k[0] / 1000
+        timestamp = k[0]
         open_price = k[1]
         high_price = k[2]
         low_price = k[3]

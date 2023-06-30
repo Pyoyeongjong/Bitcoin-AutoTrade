@@ -169,7 +169,7 @@ def get_candle_subdatas(candles):
     datetime = pd.to_datetime(candles['Time'], unit='ms')
     datetime = datetime.dt.tz_localize(pytz.utc).dt.tz_convert(korea_tz)
     # 볼린저 밴드
-    upperband, middleband, lowerband = talib.BBANDS(candles_1d['Close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+    upperband, middleband, lowerband = talib.BBANDS(candles['Close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
     upperband.name = "UpperBand"
     lowerband.name = "LowerBand"
     # 연결
@@ -208,10 +208,10 @@ def is_high_point(point, candles):
         return True
 
 # 하락 다이버전스 발견 (과거부터 탐색 -> 처움 만나는 다이버전스 Return) = 과거 Test 용
-def detect_bearish_divergence(candles, candles_info, bottom):
+def detect_bearish_divergence(candles, candles_info, bottom, k):
     frlp = None # First RSI Low Point
     srlp = None # Second RSI Low Point
-    for i, e in enumerate(candles_info['RSI']):
+    for i, e in enumerate(candles_info['RSI'][k:], start=k):
         if e <= bottom:
             if is_low_point(i, candles['Low'].apply(pd.to_numeric).to_list()):
                 frlp = i
@@ -233,7 +233,25 @@ def detect_bearish_divergence(candles, candles_info, bottom):
         if candles['Low'][frlp] < candles['Low'][srlp] or candles_info['RSI'][frlp] > candles_info['RSI'][srlp]:
             frlp = srlp
         else:
-            return candles_info['Time'][frlp], candles_info['Time'][srlp]
+            return candles_info['Time'][frlp], candles_info['Time'][srlp], srlp+1
+
+def detect_bearish_divergences(candles, candles_info, bottom):
+    bear_div_list = []
+    k = 0
+
+    while 1:
+        result = detect_bearish_divergence(candles, candles_info, bottom, k)
+        if result==0:
+            return bear_div_list
+        else:
+            print(result)
+            time1, time2, next = result
+            bear_div_list.append([time1, time2])
+            k = next
+
+    # bear_div_list.append((time1, time2))
+
+
 
 # 하락 다이버전스 감시 (현재 데이터에서 다이버전스가 일어났나?), 일반 다이버전스만 구현.
 def spectate_bearish_divergence(candles, candles_info, bottom):
@@ -260,11 +278,11 @@ def spectate_bearish_divergence(candles, candles_info, bottom):
         return False
 
 # 상승 다이버전스 발견 (과거부터 탐색 -> 처움 만나는 다이버전스 Return) = 과거 Test 용
-def detect_bullish_divergence(candles, candles_info, top):
+def detect_bullish_divergence(candles, candles_info, top, k):
     frhp = None # First RSI Low Point
     srhp = None # Second RSI Low Point
 
-    for i, e in enumerate(candles_info['RSI']):
+    for i, e in enumerate(candles_info['RSI'][k:], start=k):
         if e >= top:
             if is_high_point(i, candles['High'].apply(pd.to_numeric).to_list()):
                 frhp = i
@@ -287,6 +305,22 @@ def detect_bullish_divergence(candles, candles_info, top):
             frhp = srhp
         else:
             return candles_info['Time'][frhp], candles_info['Time'][srhp]
+
+
+def detect_bullish_divergences(candles, candles_info, bottom):
+    bull_div_list = []
+    k = 0
+    while 1:
+        result = detect_bullish_divergence(candles, candles_info, bottom, k)
+        if result==0:
+            return bull_div_list
+        else:
+            print(result)
+            time1, time2, next = result
+            bear_div_list.append([time1, time2])
+            k = next
+
+    # bear_div_list.append((time1, time2))
 
 # 상승 다이버전스 감시 (현재 데이터에서 다이버전스가 일어났나?), 일반 다이버전스만 구현.
 def spectate_bullish_divergence(candles, candles_info, top):
@@ -395,20 +429,25 @@ if __name__ == '__main__':
     get_usdt_balance(client)
     #leverage, satoshi = set_future_client_info(client, symbol, 3) # 현재 거래 중일 시 레버리지 움직이면 오류.
 
-    ### 캔들 정보 가져오기
-    candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_1d, candles_1w = get_candles(client, symbol, limit)
+    ### 캔들 정보 가져오기 (현재)
+    # candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_1d, candles_1w = get_candles(client, symbol, limit)
 
     ### 캔들 정보 가져오기 (특정 시각)
     # start_time = datetime(2023, 5, 20)
     # end_time = datetime(2023, 6, 26)
     # candles_15m = get_klines_by_date(client, symbol, limit, Client.KLINE_INTERVAL_15MINUTE, start_time, end_time)
+
+    ### 과거 데이터 (Timestamp 뭔가 이상함. csv파일)
+    # candles_history_1h = pd.read_csv("candle_data/candle_data_1h.csv")
+    # candles_history_info_1h = get_candle_subdatas(candles_history_1h)
+
     ### 보조지표 추출
-    candles_info_1d = get_candle_subdatas(candles_1d)
+    # candles_info_15m = get_candle_subdatas(candles_15m)
     # print(candles_info_1d)
 
-    ### 하락 다이버전스 발견(과거 데이터)
-    # print(detect_bearish_divergence(candles_15m, candles_info_15m, 30))
-    # print(detect_bullish_divergence(candles_15m, candles_info_15m, 70))
+    ### 하락 다이버전스 발견(과거 데이터)(리스트 형식) 출력 = [(time1, time2)]
+    # print(detect_bullish_divergences(candles_15m, candles_info_15m, 70))
+    # print(detect_bearish_divergences(candles_15m, candles_info_15m, 30))
 
     ### 하락 다이버전스 감지(현재 데이터)
     # 문제 : 이걸 분마다 계산하는 게 이득일까? 다른 데 저장해놨다가 새로 들어오는 분에 대해서만 새로운 연산을 수행하면 되지 않나? -> 최적화 문제
@@ -417,5 +456,4 @@ if __name__ == '__main__':
 
     ### 장 추세 계산함수 (일봉 9.0, 4시간봉 1.5, 1시간봉 0.3) 오늘 계산 = 499
     # print(calculate_trends(candles_1d, candles_info_1d, 9.0, 499))
-    candles_history_1h = pd.read_csv("candle_data/candle_data_1h.csv")
-    print(candles_history_1h)
+
