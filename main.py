@@ -11,14 +11,19 @@ from datetime import datetime
 # Dict 깔끔한 출력
 import pprint
 
-# 보조지표 계산 라이브러리
+# 보조지표 계산/출력 라이브러리
 import talib
 import math
+import matplotlib.pyplot as plt
 
 # Numpy / pandas
 import numpy as np
 import pandas as pd
 import pytz
+
+# CSV파일
+import os
+import csv
 
 # 클라이언트 변수
 client = None
@@ -151,7 +156,11 @@ def get_candle_subdatas(candles):
     # 문자열 -> 숫자 변환 && Pd Series
     close = candles['Close'].apply(pd.to_numeric)  # 종가 값 활용
     # Numpy밖에 못 쓴다 -> .to_numpy()
-    sma = pd.Series(talib.SMA(close.to_numpy(), timeperiod=20), name="SMA")
+    sma7 = pd.Series(talib.SMA(close.to_numpy(), timeperiod=7), name="SMA7")
+    sma20 = pd.Series(talib.SMA(close.to_numpy(), timeperiod=20), name="SMA20")
+    sma60 = pd.Series(talib.SMA(close.to_numpy(), timeperiod=60), name="SMA60")
+    sma120 = pd.Series(talib.SMA(close.to_numpy(), timeperiod=120), name="SMA120")
+
     rsi = pd.Series(talib.RSI(close.to_numpy(), timeperiod=14), name="RSI")
     volume = candles['Volume'].apply(pd.to_numeric)
     volume_sma = pd.Series(talib.SMA(volume.to_numpy(), timeperiod=20), name="Vol_SMA")
@@ -159,8 +168,12 @@ def get_candle_subdatas(candles):
     korea_tz = pytz.timezone('Asia/Seoul')
     datetime = pd.to_datetime(candles['Time'], unit='ms')
     datetime = datetime.dt.tz_localize(pytz.utc).dt.tz_convert(korea_tz)
+    # 볼린저 밴드
+    upperband, middleband, lowerband = talib.BBANDS(candles_1d['Close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+    upperband.name = "UpperBand"
+    lowerband.name = "LowerBand"
     # 연결
-    datas = pd.concat([datetime, sma, rsi, volume, volume_sma], axis=1)
+    datas = pd.concat([datetime, sma7, sma20, sma60, sma120, rsi, volume, volume_sma, upperband, lowerband], axis=1)
 
     return datas
 
@@ -391,6 +404,7 @@ if __name__ == '__main__':
     # candles_15m = get_klines_by_date(client, symbol, limit, Client.KLINE_INTERVAL_15MINUTE, start_time, end_time)
     ### 보조지표 추출
     candles_info_1d = get_candle_subdatas(candles_1d)
+    # print(candles_info_1d)
 
     ### 하락 다이버전스 발견(과거 데이터)
     # print(detect_bearish_divergence(candles_15m, candles_info_15m, 30))
@@ -403,4 +417,5 @@ if __name__ == '__main__':
 
     ### 장 추세 계산함수 (일봉 9.0, 4시간봉 1.5, 1시간봉 0.3) 오늘 계산 = 499
     # print(calculate_trends(candles_1d, candles_info_1d, 9.0, 499))
-
+    candles_history_1h = pd.read_csv("candle_data/candle_data_1h.csv")
+    print(candles_history_1h)
