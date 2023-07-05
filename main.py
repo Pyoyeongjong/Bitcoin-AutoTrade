@@ -187,7 +187,7 @@ def is_low_point(point, candles):
             break
         if candles[point+i]<temp_low:
             count+=1 #
-    if count>0: # 꼭 저점 아니어도 저점 부근이면 OK
+    if count>2: # 꼭 저점 아니어도 저점 부근이면 OK
         return False
     else:
         return True
@@ -198,11 +198,11 @@ def is_high_point(point, candles):
     count = 0
     temp_low = candles[point]
     for i in range(-8,9): # 좌우 8개의 값을 비교
-        if candles[point+i]>temp_low:
-            count+=1
         if point+i >= len(candles):
             break
-    if count>0: # 꼭 고점 아니어도 고점 부근이면 OK
+        if candles[point+i]>temp_low:
+            count+=1
+    if count>2: # 꼭 고점 아니어도 고점 부근이면 OK
         return False
     else:
         return True
@@ -233,7 +233,7 @@ def detect_bearish_divergence(candles, candles_info, bottom, k):
         if candles['Low'][frlp] < candles['Low'][srlp] or candles_info['RSI'][frlp] > candles_info['RSI'][srlp]:
             frlp = srlp
         else:
-            return candles_info['Time'][frlp], candles_info['Time'][srlp], srlp+1, srlp-frlp
+            return candles_info['Time'][frlp], candles_info['Time'][srlp], srlp, srlp-frlp
 
 def detect_bearish_divergences(candles, candles_info, bottom):
     bear_div_list = []
@@ -244,9 +244,8 @@ def detect_bearish_divergences(candles, candles_info, bottom):
         if result==0:
             return bear_div_list
         else:
-            print(result)
             time1, time2, next, term = result
-            if term < 60: # 봉 간 60개 이상 차이가 안 나야 한다.
+            if 5 < term < 60: # 봉 간 60개 이상 차이가 안 나야 한다.
                 bear_div_list.append([time1, time2])
             k = next
 
@@ -305,23 +304,23 @@ def detect_bullish_divergence(candles, candles_info, top, k):
         if candles['High'][frhp] > candles['High'][srhp] or candles_info['RSI'][frhp] < candles_info['RSI'][srhp]:
             frhp = srhp
         else:
-            return candles_info['Time'][frhp], candles_info['Time'][srhp]
+            return candles_info['Time'][frhp], candles_info['Time'][srhp], srhp, srhp-frhp
 
 
-def detect_bullish_divergences(candles, candles_info, bottom):
+def detect_bullish_divergences(candles, candles_info, top):
     bull_div_list = []
     k = 0
     while 1:
-        result = detect_bullish_divergence(candles, candles_info, bottom, k)
+        result = detect_bullish_divergence(candles, candles_info, top, k)
         if result==0:
             return bull_div_list
         else:
-            print(result)
-            time1, time2, next = result
-            bear_div_list.append([time1, time2])
+            time1, time2, next, term = result
+            if 60 > term > 5: # 봉 간 60개 이상 차이가 안 나야 한다.
+                bull_div_list.append([time1, time2])
             k = next
 
-    # bear_div_list.append((time1, time2))
+
 
 # 상승 다이버전스 감시 (현재 데이터에서 다이버전스가 일어났나?), 일반 다이버전스만 구현.
 def spectate_bullish_divergence(candles, candles_info, top):
@@ -373,9 +372,10 @@ def calculate_incline(close, i, j):
 # 종가 기준 기울기를 통해 현재 장이 상승장 or 하락장을 구분할 것임
 # 최소 1시간 이상 봉을 이용하는 게 좋아 보인다.
 # cal 일봉:9.0 4시간봉:1 1시간봉:0.2 사용하자
-def calculate_trends(candles, candles_info, cal, start):
+def calculate_trends(candles, candles_info, start):
 
-    trends = None
+    inclination_mean_list = []
+    timestamps = []
 
     # i = 인덱스, e = 종가
     for i, e in enumerate(candles['Close'][start:], start=start):
@@ -389,16 +389,10 @@ def calculate_trends(candles, candles_info, cal, start):
         if count == 0:
             continue
         inclination_mean = sum_inclination / count
-        if inclination_mean > cal: # 일봉 기준 9.0
-            trends = "상승장"
-        elif inclination_mean < -cal:
-            trends = "하락장"
-        else:
-            trends = "횡보장"
+        inclination_mean_list.append(inclination_mean)
+        timestamps.append(candles_info['Time'][i])  # Assuming 'Time' column exists in 'candles_info'
 
-        print(trends)
-
-    return trends # 하루 데이터만 출력하도록 ( 임시 )
+    return pd.DataFrame({'Time': timestamps, 'Inclination': inclination_mean_list})# 하루 데이터만 출력하도록 ( 임시 )
 
 
 # 메인 함수
@@ -406,7 +400,7 @@ if __name__ == '__main__':
 
     ### Initiation
     # row 생략 없이 출력
-    pd.set_option('display.max_rows', 10)
+    pd.set_option('display.max_rows', None)
     # col 생략 없이 출력
     pd.set_option('display.max_columns', None)
     # 캔들 데이터 가져오기
@@ -448,6 +442,8 @@ if __name__ == '__main__':
 
     ### 보조지표 추출
     # candles_info_15m = get_candle_subdatas(candles_15m)
+    # candles_info_1h = get_candle_subdatas(candles_1h)
+    # candles_info_4h = get_candle_subdatas(candles_4h)
     # candles_info_1d = get_candle_subdatas(candles_1d)
     # print(candles_info_1d)
 
@@ -465,6 +461,20 @@ if __name__ == '__main__':
 
     # ------------------------------------------------------------------------------------ #
 
-    candles_history_1d = pd.read_csv("candle_data/candle_data_1d.csv")
-    candles_history_info_1d = get_candle_subdatas(candles_history_1d)
-    print(calculate_trends(candles_history_1d, candles_history_info_1d, 9.0, len(candles_history_1d) - 1000))
+    candles_info_15m = get_candle_subdatas(candles_15m)
+    candles_info_1h = get_candle_subdatas(candles_1h)
+    candles_info_4h = get_candle_subdatas(candles_4h)
+    candles_info_1d = get_candle_subdatas(candles_1d)
+
+    bull_div_list_15m = detect_bullish_divergences(candles_15m, candles_info_15m, 60)
+    bear_div_list_15m = detect_bearish_divergences(candles_15m, candles_info_15m, 40)
+
+    inclination_1d = calculate_trends(candles_1d, candles_info_1d, 0)
+    inclination_4h = calculate_trends(candles_4h, candles_info_4h, 0)
+
+    print(bull_div_list_15m)
+    print(bear_div_list_15m)
+    print(inclination_1d)
+    print(inclination_4h)
+
+
