@@ -164,18 +164,18 @@ def get_candle_subdatas(candles):
     rsi = pd.Series(talib.RSI(close.to_numpy(), timeperiod=14), name="RSI")
     volume = candles['Volume'].apply(pd.to_numeric)
     volume_sma = pd.Series(talib.SMA(volume.to_numpy(), timeperiod=20), name="Vol_SMA")
-    # 한국 시간으로 맞춰주기 + DateTime으로 변환
+    ### 한국 시간으로 맞춰주기 + DateTime으로 변환
     korea_tz = pytz.timezone('Asia/Seoul')
-    datetime = pd.to_datetime(candles['Time'], unit='ms')
-    datetime = datetime.dt.tz_localize(pytz.utc).dt.tz_convert(korea_tz)
+    candles['Time'] = pd.to_datetime(candles['Time'], unit='ms')
     # 볼린저 밴드
-    upperband, middleband, lowerband = talib.BBANDS(candles['Close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+    upperband, middleband, lowerband = talib.BBANDS(candles['Close'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
     upperband.name = "UpperBand"
     lowerband.name = "LowerBand"
+    # 트렌드
+    inclination = calculate_trends(candles, 0)
     # 연결
-    datas = pd.concat([datetime, sma7, sma20, sma60, sma120, rsi, volume, volume_sma, upperband, lowerband], axis=1)
-
-    return datas
+    data = pd.concat([candles, sma7, sma20, sma60, sma120, rsi, volume, volume_sma, upperband, lowerband, inclination], axis=1)
+    return data
 
 # 저점 구하는 함수
 # Low값을 활용 + Array 숫자 변환 후 사용
@@ -211,9 +211,12 @@ def is_high_point(point, candles):
 def detect_bearish_divergence(candles, candles_info, bottom, k):
     frlp = None # First RSI Low Point
     srlp = None # Second RSI Low Point
+
+    candles_low = candles['Low'].apply(pd.to_numeric).to_list()
+
     for i, e in enumerate(candles_info['RSI'][k:], start=k):
         if e <= bottom:
-            if is_low_point(i, candles['Low'].apply(pd.to_numeric).to_list()):
+            if is_low_point(i, candles_low):
                 frlp = i
                 break
 
@@ -223,7 +226,7 @@ def detect_bearish_divergence(candles, candles_info, bottom, k):
     while 1:
         for i, e in enumerate(candles_info['RSI'][frlp+1:], start=frlp+1):
             if e <= bottom:
-                if is_low_point(i, candles["Low"].apply(pd.to_numeric).to_list()):
+                if is_low_point(i, candles_low):
                     srlp = i
                     break
 
@@ -260,10 +263,12 @@ def spectate_bearish_divergence(candles, candles_info, bottom):
     rlp_2 = None # Second RSI Low Point # 삼중, 사중 다이버전스 후보군
     rlp_3 = None # Third RSI Low Point
 
+    candles_low = candles['Low'].apply(pd.to_numeric).to_list()
+
     # 가장 최근 RSI 저점 구하기
     for i, v in reversed(list(enumerate(candles_info['RSI']))):
         if v <= bottom:
-            if is_low_point(i, candles['Low'].apply(pd.to_numeric).to_list()):
+            if is_low_point(i, candles_low):
                 rlp_1 = i
                 break
 
@@ -282,9 +287,11 @@ def detect_bullish_divergence(candles, candles_info, top, k):
     frhp = None # First RSI Low Point
     srhp = None # Second RSI Low Point
 
+    candles_high = candles['High'].apply(pd.to_numeric).to_list()
+
     for i, e in enumerate(candles_info['RSI'][k:], start=k):
         if e >= top:
-            if is_high_point(i, candles['High'].apply(pd.to_numeric).to_list()):
+            if is_high_point(i, candles_high):
                 frhp = i
                 break
 
@@ -294,7 +301,7 @@ def detect_bullish_divergence(candles, candles_info, top, k):
     while 1:
         for i, e in enumerate(candles_info['RSI'][frhp+1:], start=frhp+1):
             if e >= top:
-                if is_high_point(i, candles["High"].apply(pd.to_numeric).to_list()):
+                if is_high_point(i, candles_high):
                     srhp = i
                     break
 
@@ -329,10 +336,12 @@ def spectate_bullish_divergence(candles, candles_info, top):
     rhp_2 = None # Second RSI High Point # 삼중, 사중 다이버전스 후보군
     rhp_3 = None # Third RSI High Point
 
+    candles_high = candles['High'].apply(pd.to_numeric).to_list()
+
     # 가장 최근 RSI 저점 구하기
     for i, v in reversed(list(enumerate(candles_info['RSI']))):
         if v >= top:
-            if is_low_point(i, candles['High'].apply(pd.to_numeric).to_list()):
+            if is_low_point(i, candles_high):
                 rlp_1 = i
                 break
 
@@ -372,19 +381,22 @@ def calculate_incline(close, i, j):
 # 종가 기준 기울기를 통해 현재 장이 상승장 or 하락장을 구분할 것임
 # 최소 1시간 이상 봉을 이용하는 게 좋아 보인다.
 # cal 일봉:9.0 4시간봉:1 1시간봉:0.2 사용하자
-def calculate_trends(candles, candles_info, start):
+def calculate_trends(candles_info, start):
 
     inclination_mean_list = []
     timestamps = []
+    candles_close = candles_info["Close"].apply(pd.to_numeric).to_list()
 
     # i = 인덱스, e = 종가
-    for i, e in enumerate(candles['Close'][start:], start=start):
+    for i, e in enumerate(candles_info['Close'][start:], start=start):
         sum_inclination = 0
         count = 0
         for j in range(-10 ,0):
-            if i+j<0 or i+j>=len(candles) or j==0:
+            if i+j<0 or i+j>=len(candles_info) or j==0:
                 continue
-            sum_inclination += calculate_incline(candles["Close"].apply(pd.to_numeric).to_list(), i, i+j)
+
+            sum_inclination += calculate_incline(candles_close, i, i+j)
+
             count+=1
         if count == 0:
             continue
@@ -392,7 +404,11 @@ def calculate_trends(candles, candles_info, start):
         inclination_mean_list.append(inclination_mean)
         timestamps.append(candles_info['Time'][i])  # Assuming 'Time' column exists in 'candles_info'
 
-    return pd.DataFrame({'Time': timestamps, 'Inclination': inclination_mean_list})# 하루 데이터만 출력하도록 ( 임시 )
+    return pd.DataFrame({'Inclination': inclination_mean_list})# 하루 데이터만 출력하도록 ( 임시 )
+
+def read_csv_data(time):
+    candles_history = pd.read_csv(f"candle_data/candle_data_{time}.csv")
+    return candles_history
 
 
 # 메인 함수
@@ -400,7 +416,7 @@ if __name__ == '__main__':
 
     ### Initiation
     # row 생략 없이 출력
-    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_rows', 10)
     # col 생략 없이 출력
     pd.set_option('display.max_columns', None)
     # 캔들 데이터 가져오기
@@ -429,16 +445,30 @@ if __name__ == '__main__':
     #leverage, satoshi = set_future_client_info(client, symbol, 3) # 현재 거래 중일 시 레버리지 움직이면 오류.
 
     ### 캔들 정보 가져오기 (현재)
-    candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_1d, candles_1w = get_candles(client, symbol, limit)
+    # candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_1d, candles_1w = get_candles(client, symbol, limit)
 
     ### 캔들 정보 가져오기 (특정 시각)
     # start_time = datetime(2023, 5, 20)
     # end_time = datetime(2023, 6, 26)
     # candles_15m = get_klines_by_date(client, symbol, limit, Client.KLINE_INTERVAL_15MINUTE, start_time, end_time)
 
-    ### 과거 데이터 (Timestamp 뭔가 이상함. csv파일)
-    # candles_history_15m = pd.read_csv("candle_data/candle_data_15m.csv")
-    # candles_history_info_15m = get_candle_subdatas(candles_history_15m)
+    ### 과거 데이터 (Timestamp 안 이상함)
+
+    time0 = time.time()
+
+    candles_history_15m = read_csv_data("15m")
+    candles_history_info_15m = get_candle_subdatas(candles_history_15m)
+
+    candles_history_1h = read_csv_data("1h")
+    candles_history_info_1h = get_candle_subdatas(candles_history_1h)
+
+    candles_history_4h = read_csv_data("4h")
+    candles_history_info_4h = get_candle_subdatas(candles_history_4h)
+
+    candles_history_1d = read_csv_data("1d")
+    candles_history_info_1d = get_candle_subdatas(candles_history_1d)
+
+    time1 = time.time()
 
     ### 보조지표 추출
     # candles_info_15m = get_candle_subdatas(candles_15m)
@@ -457,24 +487,41 @@ if __name__ == '__main__':
     # print(spectate_bullish_divergence(candles_15m, candles_info_15m, 70))
 
     ### 장 추세 계산함수 (일봉 9.0, 4시간봉 1.5, 1시간봉 0.3) 오늘 계산 = len(candles)-1
-    # print(calculate_trends(candles_1d, candles_info_1d, 9.0, len(candles_1d)-1))
+
+    # print(candles_history_info_1h)
+    # print(time1-time0)
 
     # ------------------------------------------------------------------------------------ #
 
-    candles_info_15m = get_candle_subdatas(candles_15m)
-    candles_info_1h = get_candle_subdatas(candles_1h)
-    candles_info_4h = get_candle_subdatas(candles_4h)
-    candles_info_1d = get_candle_subdatas(candles_1d)
+    is_bought = False
+    is_hwengbo = False
 
-    bull_div_list_15m = detect_bullish_divergences(candles_15m, candles_info_15m, 60)
-    bear_div_list_15m = detect_bearish_divergences(candles_15m, candles_info_15m, 40)
+    trade_count = 0
+    win_count = 0
+    ror = 1
+    accumulator_ror = 1
+    start_cash = 10000
+    current_cash = start_cash
+    highest_cash = start_cash
+    lowest_cash = start_cash
 
-    inclination_1d = calculate_trends(candles_1d, candles_info_1d, 0)
-    inclination_4h = calculate_trends(candles_4h, candles_info_4h, 0)
+    day_inclination = None
 
-    print(bull_div_list_15m)
-    print(bear_div_list_15m)
-    print(inclination_1d)
-    print(inclination_4h)
+    for idx, row in candles_history_info_1h.iterrows():
+        dt = datetime.strptime(str(row['Time']),'%Y-%m-%d %H:%M:%S')
+
+        if dt.hour == 0 and dt.minute == 0 and dt.second == 0:
+            day_inclination = row['Inclination']
+
+        if day_inclination is None:
+            continue
+
+        if -12 >  day_inclination > 12:
+            is_hwengbo = False
+            continue
+
+
+
+
 
 
