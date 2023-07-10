@@ -458,44 +458,51 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
         vol_sma = row['Vol_SMA']
         low = row['Low']
         high = row['High']
-
         dt = row['Time']
 
+        # 사지 않은 상태라면,
         if is_bought == False:
 
+            # 당일 일봉 기울기 가져오기
             if dt.hour == 9 and dt.minute == 0 and dt.second == 0:
                 dayrow = candles_history_info_1d[candles_history_info_1d['Time'] == dt]
                 if yest_inc is None:
                     yest_inc = dayrow['Inclination'].values[0]
                     continue
-
+            # 예외 처리
             if dayrow is None:
                 continue
             # day_inclination = dayrow['Inclination'].values[0]
+
+            # 기울기 계산(1시간 봉 종가 기준마다)
             dayrow_open = dayrow['Open'].values[0]
-            day_inclination = calculate_incline_1h_1d(dayrow_open, close, yest_inc)
+            day_inclination = calculate_incline_1h_1d(dayrow_open, close, yest_inc) # 내적으로 보완. 당일 기울기 : 전일까지의 기울기평균 = 1:2
+            # 전일 기울기 업데이트
             yest_inc = dayrow['Inclination'].values[0]
-
-
+            # 예외 처리
             if day_inclination is None:
                 print("None")
                 continue
 
+            # 기울기 = 횡보일 때
             if -inc < day_inclination < inc:
                 inc_count+=1
             else:
                 inc_count=0
                 is_hwengbo = False
                 continue
-
+            # 기울기 연속으로 얼마나 횡보였나 판단.
             if inc_count>=1:
                 is_hwengbo = True
                 inc_count=0
             else:
                 continue
 
+            # 횡보라고 판정됨 -> 매수 준비
             if is_hwengbo:
+                # 1시간 봉 기준 볼린저밴드 아래에서 마감
                 if lowerband > close:
+                    # 거래량이 평균보다 20% 높으면 롱 진입.
                     if (volume > vol_sma * 1.2).all():
                         in_price = close
                         is_bought = True
@@ -504,9 +511,11 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                         is_Short = False
                         trade_count += 1
                         #print("오늘 기울기: ",day_inclination)
-                        print(row['Time'], "롱 진입", in_price, f"손절가 :{sonjul:<2.0f}", "총 거래 횟수 : ", trade_count)
+                        #print(row['Time'], "롱 진입", in_price, f"손절가 :{sonjul:<2.0f}", "총 거래 횟수 : ", trade_count)
                         continue
+                # 1시간 봉 기준 볼린저밴드 위에서 마감
                 if close > upperband:
+                    # 거래량이 평균보다 20% 높으면 숏 진입.
                     if (volume > vol_sma * 1.2).all():
                         in_price = close
                         is_bought = True
@@ -515,22 +524,21 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                         is_Short = True
                         trade_count += 1
                         #print("오늘 기울기: ", day_inclination)
-                        print(row['Time'], "숏 진입", in_price,f"손절가 :{sonjul:<2.0f}", "총 거래 횟수 : ", trade_count)
+                        #print(row['Time'], "숏 진입", in_price,f"손절가 :{sonjul:<2.0f}", "총 거래 횟수 : ", trade_count)
                         continue
         else:
             if is_Long:
-
                 # 익절
                 if low <= upperband <= high:
                     is_bought = False
-                    suik = current_cash * (upperband / in_price - 1-0.0008) * lev* 0.5
+                    suik = current_cash * (upperband / in_price - 1-0.0008) * lev* 0.5 # 수익 계산
                     current_cash += suik
                     if current_cash > highest_cash:
                         highest_cash = current_cash
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     win_count += 1
-                    print(row['Time'], f"롱 승리! 익절가 :{upperband:<2.0f}, 수익 :{suik:<2.0f},                현재 시드 :{current_cash:<2.0f}\n")
+                    #print(row['Time'], f"롱 승리! 익절가 :{upperband:<2.0f}, 수익 :{suik:<2.0f},                현재 시드 :{current_cash:<2.0f}\n")
                     continue
 
                 # 손절
@@ -542,21 +550,21 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     lose_count += 1
-                    print(row['Time'], f"롱 패배...                                 현재 시드 :{current_cash:<2.0f}\n")
+                    #print(row['Time'], f"롱 패배...                                 현재 시드 :{current_cash:<2.0f}\n")
                     continue
 
             elif is_Short:
                 # 익절
                 if low <= lowerband <= high:
                     is_bought = False
-                    suik = current_cash * (in_price / lowerband - 1-0.0008) * lev * 0.5
+                    suik = current_cash * (in_price / lowerband - 1-0.0008) * lev * 0.5 # 수익 계산
                     current_cash += suik
                     if current_cash > highest_cash:
                         highest_cash = current_cash
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     win_count += 1
-                    print(row['Time'], f"숏 승리! 익절가 :{lowerband:<2.0f}, 수익 :{suik:<2.0f},              현재 시드 :{current_cash:<2.0f}\n")
+                    #print(row['Time'], f"숏 승리! 익절가 :{lowerband:<2.0f}, 수익 :{suik:<2.0f},              현재 시드 :{current_cash:<2.0f}\n")
                     continue
                 # 손절
                 elif low <= sonjul <= high:
@@ -567,7 +575,7 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     lose_count += 1
-                    print(row['Time'], f"숏 패배...                                            현재 시드 :{current_cash:<2.0f}\n")
+                    #print(row['Time'], f"숏 패배...                                            현재 시드 :{current_cash:<2.0f}\n")
                     continue
     print(
         f"Trade count: {str(trade_count):<2}  Win count: {str(win_count):<2}  Lose count: {str(lose_count):<2}"
@@ -590,7 +598,7 @@ if __name__ == '__main__':
     satoshi = None
     leverage = None
 
-    # 계좌 연결
+    ### 계좌 연결
     binance_access_key, binance_secret_key = read_api_keys(api_key_file_path)
     try:
         client = Client(binance_access_key, binance_secret_key)
@@ -601,7 +609,7 @@ if __name__ == '__main__':
         print(e)
         exit()
 
-    ## 현재 포지션 정보
+    ### 현재 포지션 정보
     positions = client.futures_position_information()
     get_position(positions, symbol)
     ### Client 정보 설정 및 잔고 출력
@@ -616,8 +624,14 @@ if __name__ == '__main__':
     # end_time = datetime(2023, 6, 26)
     # candles_15m = get_klines_by_date(client, symbol, limit, Client.KLINE_INTERVAL_15MINUTE, start_time, end_time)
 
-    ### 과거 데이터 (Timestamp 안 이상함)
+    ### 보조지표 추출
+    # candles_info_15m = get_candle_subdatas(candles_15m)
+    # candles_info_1h = get_candle_subdatas(candles_1h)
+    # candles_info_4h = get_candle_subdatas(candles_4h)
+    # candles_info_1d = get_candle_subdatas(candles_1d)
+    # print(candles_info_1d)
 
+    ### 과거 데이터 & 보조지표 (Timestamp 안 이상함)
     time0 = time.time()
 
     candles_history_15m = read_csv_data("15m")
@@ -632,21 +646,14 @@ if __name__ == '__main__':
     candles_history_1d = read_csv_data("1d")
     candles_history_info_1d = get_candle_subdatas(candles_history_1d)
 
-    time1 = time.time()
-
     candles_history_1h_21 = pd.read_csv(f"candle_data/candle_data_1h_before_21.csv")
     candles_history_info_1h_21 = get_candle_subdatas(candles_history_1h_21)
+
     candles_history_4h_21 = pd.read_csv(f"candle_data/candle_data_4h_before_21.csv")
     candles_history_info_4h_21 = get_candle_subdatas(candles_history_4h_21)
+
     candles_history_1d_21 = pd.read_csv(f"candle_data/candle_data_1d_before_21.csv")
     candles_history_info_1d_21 = get_candle_subdatas(candles_history_1d_21)
-
-    ### 보조지표 추출
-    # candles_info_15m = get_candle_subdatas(candles_15m)
-    # candles_info_1h = get_candle_subdatas(candles_1h)
-    # candles_info_4h = get_candle_subdatas(candles_4h)
-    # candles_info_1d = get_candle_subdatas(candles_1d)
-    # print(candles_info_1d)
 
     ### 하락 다이버전스 발견(과거 데이터)(리스트 형식) 출력 = [(time1, time2)]
     # print(detect_bullish_divergences(candles_15m, candles_info_15m, 70))
@@ -660,18 +667,12 @@ if __name__ == '__main__':
     ### 장 추세 계산함수 (일봉 9.0, 4시간봉 1.5, 1시간봉 0.3) 오늘 계산 = len(candles)-1
     # print(candles_history_info_1h)
 
-    ### 데이터형
-    # print(candles_history_info_1h[365*24:])
+    ### 함수 걸리는 시간 계산
+    # time1 = time.time()
+    # time2 = time.time()
+    # print(time2-time1)
 
-    # print(time1-time0)
-
-
-    # for k in range(0,31):
-    #     print(f'[[{k}]]')
-    #     backTesting(candles_history_info_1h_21, candles_history_info_1d_21, 10, 2, 10, k)
-    #     print('')
-
-    # 횡보장 전략 확정!!! 기울기 -10~10, 손실 2%, 레버리지 10배
+    # 횡보장 전략 확정!!! 기울기 -10~10, 손실 2%, 레버리지 10배, 기울기 보수지표 = 1
     backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, 10, 2, 10)
 
 
