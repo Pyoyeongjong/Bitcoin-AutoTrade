@@ -378,6 +378,15 @@ def get_position(positions, symbol):
 def calculate_incline(close, i, j):
     return (close[j]-close[i])/(j-i)/(close[i])*1000
 
+def cal_inc_1h1d(ytdc, cp):
+    return (cp-ytdc)/cp*1000
+
+def calculate_incline_1h_1d(yesterday_close, cur_price, yesterday_incline):
+    return (yesterday_incline*2+cal_inc_1h1d(yesterday_close, cur_price))/3
+
+
+
+
 ### 장 추세 구별 함수
 # 종가 기준 기울기를 통해 현재 장이 상승장 or 하락장을 구분할 것임
 # 최소 1시간 이상 봉을 이용하는 게 좋아 보인다.
@@ -413,35 +422,34 @@ def read_csv_data(time):
 
 
 # sjh = 손절 상수, lev = 배율상수(전체시드 기준)
-def backTesting(candles_history_info_1h, candles_history_info_1d, inc, sjh, lev):
+def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, sjh, lev):
 
     is_bought = False
-    is_hwengbo = False
+    is_hwengbo = False # 횡보 중인가?
 
-    trade_count = 0
-    win_count = 0
-    lose_count = 0
-    ror = 1
-    accumulator_ror = 1
-    start_cash = 10000
-    current_cash = start_cash
-    highest_cash = start_cash
-    lowest_cash = start_cash
+    trade_count = 0 # 매매 횟수
+    win_count = 0 # 승리 횟수
+    lose_count = 0 # 패배 횟수
 
-    day_inclination = None
+    start_cash = 10000 # 초기 시드
+    current_cash = start_cash # 현재 시드
+    highest_cash = start_cash # 최고 시드
+    lowest_cash = start_cash # 최저 시드
 
-    in_price = 0
-    out_price = 0
-    sonjul = 0
+    day_inclination = None # 현재 기울기
+    dayrow = None # 당일 데이터
+    yest_inc = None # 전일 기울기
+
+    in_price = 0 # 진입가
+    sonjul = 0 # 손절가
     is_Long = False
     is_Short = False
+    inc_count = 0 # 기울기 카운트. 1시간봉 종가 기준 횡보 기울기가 연속으로 몇개가 나오면 들어갈 건지에 대해
 
     for idx, row in candles_history_info_1h.iloc[:].iterrows():
 
         if idx < 100:
             continue
-
-        dt = row['Time']
 
         upperband = row['UpperBand']
         lowerband = row['LowerBand']
@@ -451,262 +459,121 @@ def backTesting(candles_history_info_1h, candles_history_info_1d, inc, sjh, lev)
         low = row['Low']
         high = row['High']
 
+        dt = row['Time']
+
         if is_bought == False:
 
             if dt.hour == 9 and dt.minute == 0 and dt.second == 0:
                 dayrow = candles_history_info_1d[candles_history_info_1d['Time'] == dt]
-                day_inclination = dayrow['Inclination'].values[0]
+                if yest_inc is None:
+                    yest_inc = dayrow['Inclination'].values[0]
+                    continue
+
+            if dayrow is None:
+                continue
+            # day_inclination = dayrow['Inclination'].values[0]
+            dayrow_open = dayrow['Open'].values[0]
+            day_inclination = calculate_incline_1h_1d(dayrow_open, close, yest_inc)
+            yest_inc = dayrow['Inclination'].values[0]
+
 
             if day_inclination is None:
+                print("None")
                 continue
 
-            if ((-inc > day_inclination) or (day_inclination > inc)).all():
+            if -inc < day_inclination < inc:
+                inc_count+=1
+            else:
+                inc_count=0
                 is_hwengbo = False
                 continue
 
-            is_hwengbo = True
+            if inc_count>=1:
+                is_hwengbo = True
+                inc_count=0
+            else:
+                continue
 
-            if lowerband > close:
-                if (volume > vol_sma * 1.2).all():
-                    in_price = close
-                    is_bought = True
-                    sonjul = close - close * 0.005 * sjh
-                    is_Long = True
-                    is_Short = False
-                    trade_count += 1
-                    #print(row['Time'], "롱 진입", in_price, sonjul, "총 거래 횟수 : ", trade_count, close, lowerband,
-                    #      day_inclination)
-                    continue
-            if close > upperband:
-                if (volume > vol_sma * 1.2).all():
-                    in_price = close
-                    is_bought = True
-                    sonjul = close + close * 0.005 * sjh
-                    is_Long = False
-                    is_Short = True
-                    trade_count += 1
-                    #print(row['Time'], "숏 진입", in_price, sonjul, "총 거래 횟수 : ", trade_count, close, upperband,
-                    #      day_inclination)
-                    continue
+            if is_hwengbo:
+                if lowerband > close:
+                    if (volume > vol_sma * 1.2).all():
+                        in_price = close
+                        is_bought = True
+                        sonjul = close - close * 0.01 * sjh
+                        is_Long = True
+                        is_Short = False
+                        trade_count += 1
+                        #print("오늘 기울기: ",day_inclination)
+                        print(row['Time'], "롱 진입", in_price, f"손절가 :{sonjul:<2.0f}", "총 거래 횟수 : ", trade_count)
+                        continue
+                if close > upperband:
+                    if (volume > vol_sma * 1.2).all():
+                        in_price = close
+                        is_bought = True
+                        sonjul = close + close * 0.01 * sjh
+                        is_Long = False
+                        is_Short = True
+                        trade_count += 1
+                        #print("오늘 기울기: ", day_inclination)
+                        print(row['Time'], "숏 진입", in_price,f"손절가 :{sonjul:<2.0f}", "총 거래 횟수 : ", trade_count)
+                        continue
         else:
-
             if is_Long:
 
                 # 익절
                 if low <= upperband <= high:
                     is_bought = False
-                    suik = current_cash * (upperband / in_price - 1) * lev* 0.5
+                    suik = current_cash * (upperband / in_price - 1-0.0008) * lev* 0.5
                     current_cash += suik
                     if current_cash > highest_cash:
                         highest_cash = current_cash
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     win_count += 1
-                    #print(row['Time'], "롱 승리", upperband, "수익 :", suik, "현재 시드", current_cash)
+                    print(row['Time'], f"롱 승리! 익절가 :{upperband:<2.0f}, 수익 :{suik:<2.0f},                현재 시드 :{current_cash:<2.0f}\n")
                     continue
 
                 # 손절
                 elif low <= sonjul <= high:
                     is_bought = False
-                    current_cash += current_cash * (sonjul / in_price - 1) * lev* 0.5
+                    current_cash += current_cash * (sonjul / in_price - 1-0.0008) * lev* 0.5
                     if current_cash > highest_cash:
                         highest_cash = current_cash
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     lose_count += 1
-                    #print(row['Time'], "롱 패배", sonjul, current_cash)
+                    print(row['Time'], f"롱 패배...                                 현재 시드 :{current_cash:<2.0f}\n")
                     continue
 
             elif is_Short:
                 # 익절
                 if low <= lowerband <= high:
                     is_bought = False
-                    suik = current_cash * (in_price / lowerband - 1) * lev * 0.5
+                    suik = current_cash * (in_price / lowerband - 1-0.0008) * lev * 0.5
                     current_cash += suik
                     if current_cash > highest_cash:
                         highest_cash = current_cash
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     win_count += 1
-                    #print(row['Time'], "숏 승리", lowerband, "수익 :", suik, "현재 시드", current_cash)
+                    print(row['Time'], f"숏 승리! 익절가 :{lowerband:<2.0f}, 수익 :{suik:<2.0f},              현재 시드 :{current_cash:<2.0f}\n")
                     continue
                 # 손절
                 elif low <= sonjul <= high:
                     is_bought = False
-                    current_cash += current_cash * (in_price / sonjul - 1) * lev* 0.5
+                    current_cash += current_cash * (in_price / sonjul - 1-0.0008) * lev * 0.5
                     if current_cash > highest_cash:
                         highest_cash = current_cash
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     lose_count += 1
-                    #print(row['Time'], "숏 패배", sonjul, current_cash)
+                    print(row['Time'], f"숏 패배...                                            현재 시드 :{current_cash:<2.0f}\n")
                     continue
     print(
         f"Trade count: {str(trade_count):<2}  Win count: {str(win_count):<2}  Lose count: {str(lose_count):<2}"
         f"  Current cash: {current_cash:<8.0f}  Highest cash: {highest_cash:<8.0f}  Lowest cash: {lowest_cash:<8.0f}"
     )
 
-# 0.5% 위에서 잡는다.
-def backTesting2(candles_history_info_1h, candles_history_info_1d, inc):
-
-    bought_ready = False
-    is_bought = False
-    is_hwengbo = False
-
-    buy_count = 0
-
-    trade_count = 0
-    win_count = 0
-    lose_count = 0
-    ror = 1
-    accumulator_ror = 1
-    start_cash = 10000
-    current_cash = start_cash
-    highest_cash = start_cash
-    lowest_cash = start_cash
-
-    day_inclination = None
-
-    in_price = 0
-    out_price = 0
-    sonjul = 0
-    is_Long = False
-    is_Short = False
-
-    for idx, row in candles_history_info_1h.iloc[:].iterrows():
-
-        if idx < 100:
-            continue
-
-        dt = row['Time']
-
-        upperband = row['UpperBand']
-        lowerband = row['LowerBand']
-        close = row['Close']
-        volume = row['Volume']
-        vol_sma = row['Vol_SMA']
-        low = row['Low']
-        high = row['High']
-
-        if is_bought == False and bought_ready == False:
-
-            if dt.hour == 9 and dt.minute == 0 and dt.second == 0:
-                dayrow = candles_history_info_1d[candles_history_info_1d['Time'] == dt]
-                day_inclination = dayrow['Inclination'].values[0]
-
-            if day_inclination is None:
-                continue
-
-            if ((-inc > day_inclination) or (day_inclination > inc)).all():
-                is_hwengbo = False
-                continue
-
-            is_hwengbo = True
-
-            if lowerband > close:
-                if (volume > vol_sma * 1.2).all():
-                    in_price = close*1.005
-                    bought_ready=True
-                    is_Long=True
-                    is_Short=False
-                    #print(row['Time'], "롱 진입", in_price, sonjul, "총 거래 횟수 : ", trade_count, close, lowerband,
-                    #      day_inclination)
-                    continue
-            if close > upperband:
-                if (volume > vol_sma * 1.2).all():
-                    in_price = close*0.995
-                    bought_ready=True
-                    is_Short=True
-                    is_Long=False
-                    #print(row['Time'], "숏 진입", in_price, sonjul, "총 거래 횟수 : ", trade_count, close, upperband,
-                    #      day_inclination)
-                    continue
-
-        elif bought_ready==True and is_bought==False:
-            if is_Long:
-                if low<=in_price<=high:
-
-                    sonjul = in_price - in_price * 0.015
-                    is_bought=True
-                    bought_ready=False
-                    trade_count += 1
-                    continue
-            elif is_Short:
-
-                if low <= in_price <= high:
-
-                    sonjul = in_price + in_price * 0.015
-                    is_bought = True
-                    bought_ready = False
-                    trade_count += 1
-                    continue
-            buy_count+=1
-            if buy_count > 15:
-                bought_ready=False
-                is_bought=False
-                is_Long=False
-                is_Short=False
-                buy_count=0
-                continue
-
-
-
-        else:
-            if is_Long:
-
-                # 익절
-                if low <= upperband <= high:
-                    is_bought = False
-                    suik = current_cash * (upperband / in_price - 1) * 3
-                    current_cash += suik
-                    if current_cash > highest_cash:
-                        highest_cash = current_cash
-                    elif current_cash < lowest_cash:
-                        lowest_cash = current_cash
-                    win_count += 1
-                    #print(row['Time'], "롱 승리", upperband, "수익 :", suik, "현재 시드", current_cash)
-                    continue
-
-                # 손절
-                elif low <= sonjul <= high:
-                    is_bought = False
-                    current_cash += current_cash * (sonjul / in_price - 1) * 3
-                    if current_cash > highest_cash:
-                        highest_cash = current_cash
-                    elif current_cash < lowest_cash:
-                        lowest_cash = current_cash
-                    lose_count += 1
-                    #print(row['Time'], "롱 패배", sonjul, current_cash)
-                    continue
-
-            elif is_Short:
-                # 익절
-                if low <= lowerband <= high:
-                    is_bought = False
-                    suik = current_cash * (in_price / lowerband - 1) * 3
-                    current_cash += suik
-                    if current_cash > highest_cash:
-                        highest_cash = current_cash
-                    elif current_cash < lowest_cash:
-                        lowest_cash = current_cash
-                    win_count += 1
-                    #print(row['Time'], "숏 승리", lowerband, "수익 :", suik, "현재 시드", current_cash)
-                    continue
-                # 손절
-                elif low <= sonjul <= high:
-                    is_bought = False
-                    current_cash += current_cash * (in_price / sonjul - 1) * 3
-                    if current_cash > highest_cash:
-                        highest_cash = current_cash
-                    elif current_cash < lowest_cash:
-                        lowest_cash = current_cash
-                    lose_count += 1
-                    #print(row['Time'], "숏 패배", sonjul, current_cash)
-                    continue
-    print(
-        f"              Trade count: {str(trade_count):<2}  Win count: {str(win_count):<2}  Lose count: {str(lose_count):<2}"
-        f"  Current cash: {current_cash:<8.0f}  Highest cash: {highest_cash:<8.0f}  Lowest cash: {lowest_cash:<8.0f}"
-    )
 
 # 메인 함수
 if __name__ == '__main__':
@@ -798,16 +665,14 @@ if __name__ == '__main__':
 
     # print(time1-time0)
 
-    # backTesting(candles_history_info_1h, candles_history_info_1d, i, sj, lev, k)
 
-    # for k in range(0, 32):
-    #     print(
-    #         f'                        ---------------------------------k = {k}---------------------------------------')
-    #     backTesting(candles_history_info_1h, candles_history_info_1d, 10, 4, 10, k)
+    # for k in range(0,31):
+    #     print(f'[[{k}]]')
+    #     backTesting(candles_history_info_1h_21, candles_history_info_1d_21, 10, 2, 10, k)
+    #     print('')
 
-    for i in range(1, 21):
-        print("[[[[[[",i,"]]]]]]")
-        backTesting(candles_history_info_1h_21, candles_history_info_1d_21, i, 10, 8)
+    # 횡보장 전략 확정!!! 기울기 -10~10, 손실 2%, 레버리지 10배
+    backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, 10, 2, 10)
 
 
 
