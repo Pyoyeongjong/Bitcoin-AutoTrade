@@ -378,13 +378,13 @@ def get_position(positions, symbol):
 def calculate_incline(close, i, j):
     return (close[j]-close[i])/(j-i)/(close[i])*1000
 
+# 1시간 봉 라이브 기울기 구하는 함수1
 def cal_inc_1h1d(ytdc, cp):
     return (cp-ytdc)/cp*1000
 
+# 1시간 봉 라이브 기울기 구하는 함수2
 def calculate_incline_1h_1d(yesterday_close, cur_price, yesterday_incline):
     return (yesterday_incline*2+cal_inc_1h1d(yesterday_close, cur_price))/3
-
-
 
 
 ### 장 추세 구별 함수
@@ -394,6 +394,8 @@ def calculate_incline_1h_1d(yesterday_close, cur_price, yesterday_incline):
 def calculate_trends(candles_info, start):
 
     inclination_mean_list = []
+    inclination_mean_list.append(0)
+
     timestamps = []
     candles_close = candles_info["Close"].apply(pd.to_numeric).to_list()
 
@@ -448,6 +450,7 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
 
     for idx, row in candles_history_info_1h.iloc[:].iterrows():
 
+
         if idx < 100:
             continue
 
@@ -478,20 +481,22 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
             dayrow_open = dayrow['Open'].values[0]
             day_inclination = calculate_incline_1h_1d(dayrow_open, close, yest_inc) # 내적으로 보완. 당일 기울기 : 전일까지의 기울기평균 = 1:2
             # 전일 기울기 업데이트
-            yest_inc = dayrow['Inclination'].values[0]
+
             # 예외 처리
             if day_inclination is None:
                 print("None")
                 continue
-
+            yest_inc = dayrow['Inclination'].values[0]
             # 기울기 = 횡보일 때
             if -inc < day_inclination < inc:
                 inc_count+=1
             else:
+
                 inc_count=0
                 is_hwengbo = False
                 continue
             # 기울기 연속으로 얼마나 횡보였나 판단.
+
             if inc_count>=1:
                 is_hwengbo = True
                 inc_count=0
@@ -531,7 +536,7 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                 # 익절
                 if low <= upperband <= high:
                     is_bought = False
-                    suik = current_cash * (upperband / in_price - 1-0.0008) * lev* 0.5 # 수익 계산
+                    suik = current_cash * (upperband / in_price - 1-0.0008) * lev * 0.5 # 수익 계산
                     current_cash += suik
                     if current_cash > highest_cash:
                         highest_cash = current_cash
@@ -583,12 +588,19 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
     )
 
 
+def backTesting_bull():
+
+
+    return print("Hi")
+
+
+
 # 메인 함수
 if __name__ == '__main__':
 
     ### Initiation
     # row 생략 없이 출력
-    pd.set_option('display.max_rows', 100)
+    pd.set_option('display.max_rows', 10)
     # col 생략 없이 출력
     pd.set_option('display.max_columns', None)
     # 캔들 데이터 가져오기
@@ -665,7 +677,12 @@ if __name__ == '__main__':
     # print(spectate_bullish_divergence(candles_15m, candles_info_15m, 70))
 
     ### 장 추세 계산함수 (일봉 9.0, 4시간봉 1.5, 1시간봉 0.3) 오늘 계산 = len(candles)-1
-    # print(candles_history_info_1h)
+    # incinc = pd.concat([candles_history_info_1d['Time'], candles_history_info_1d['Inclination']],axis=1)
+    # filtered_df = incinc[incinc.iloc[:, 1] > 10]
+    # print(filtered_df)
+    # print(incinc)
+
+    #print(candles_history_info_1d)
 
     ### 함수 걸리는 시간 계산
     # time1 = time.time()
@@ -673,9 +690,26 @@ if __name__ == '__main__':
     # print(time2-time1)
 
     # 횡보장 전략 확정!!! 기울기 -10~10, 손실 2%, 레버리지 10배, 기울기 보수지표 = 1
-    backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, 10, 2, 10)
+    print("History 18~20\n")
 
+    for i in range(1,21):
+        print(f"[[[{i}]]]")
+        backTesting_hwengbo(candles_history_info_1h_21, candles_history_info_1d_21, i, 0.5, 20)
+        backTesting_hwengbo(candles_history_info_1h_21, candles_history_info_1d_21, i, 0.66, 15)
+        backTesting_hwengbo(candles_history_info_1h_21, candles_history_info_1d_21, i, 1, 10)
+        backTesting_hwengbo(candles_history_info_1h_21, candles_history_info_1d_21, i, 2, 5)
+        backTesting_hwengbo(candles_history_info_1h_21, candles_history_info_1d_21, i, 3, 4)
+        backTesting_hwengbo(candles_history_info_1h_21, candles_history_info_1d_21, i, 4, 3)
 
+    print("\n\nHistory 21~\n")
 
+    for i in range(1,21):
+        print(f"[[[{i}]]]")
+        backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, i, 0.5, 20)
+        backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, i, 0.66, 15)
+        backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, i, 1, 10)
+        backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, i, 2, 5)
+        backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, i, 3, 4)
+        backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, i, 4, 3)
 
 
