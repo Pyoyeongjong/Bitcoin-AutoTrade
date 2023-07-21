@@ -3,6 +3,14 @@ from binance.client import Client
 from binance.exceptions import BinanceAPIException
 from binance.enums import *
 
+# 텔레그램
+import telegram
+import asyncio
+
+### Telegram
+bot = telegram.Bot(token="6332731064:AAEOlgnRBgM8RZxW9CnkUPJHvEo54SZoEH8")
+chat_id = 1735838793
+
 # 시간 동기화
 # import win32api
 import time
@@ -725,7 +733,7 @@ def backTesting_hwengbo_2(candles_history_info_1h, candles_history_info_1d, inc,
 # greed = 볼린저밴드만 찍고 반대로 가지 않고 보통 볼린저밴드를 타고 흐른다. 따라서 볼린저밴드를 초과하는 곳을 익절라인으로 잡으면 수익이 극대화되지 않을까?
 #   볼린저밴드 상단을 터치하자마자 생성되게 만든 greed_value는 백테스팅 결과가 좋지 못했다.
 # 각 봉에 따른 upperband를 업데이트 하는것이 더 수익면에서 좋았다.
-def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, sjh, lev, greed):
+def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, sjh, lev, greed, isprint):
     is_bought = False
     is_hwengbo = False  # 횡보 중인가?
 
@@ -816,8 +824,9 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                         is_Long = True
                         is_Short = False
                         trade_count += 1
-                        print("오늘 기울기: ",day_inclination)
-                        print(row['Time'], "롱 진입", in_price, f"손절가 :{sonjul:<2.0f}", "총 거래 횟수 : ", trade_count)
+                        if isprint:
+                            print("오늘 기울기: ",day_inclination)
+                            print(row['Time'], "롱 진입", in_price, f"손절가 :{sonjul:<2.0f}", "총 거래 횟수 : ", trade_count)
                         continue
                 # 1시간 봉 기준 볼린저밴드 위에서 마감
                 if close > upperband:
@@ -829,8 +838,9 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                         is_Long = False
                         is_Short = True
                         trade_count += 1
-                        print("오늘 기울기: ", day_inclination)
-                        print(row['Time'], "숏 진입", in_price,f"손절가 :{sonjul:<2.0f}", "총 거래 횟수 : ", trade_count)
+                        if isprint:
+                            print("오늘 기울기: ", day_inclination)
+                            print(row['Time'], "숏 진입", in_price,f"손절가 :{sonjul:<2.0f}", "총 거래 횟수 : ", trade_count)
                         continue
         else:
             if is_Long:
@@ -847,7 +857,8 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     win_count += 1
-                    print(row['Time'], f"롱 승리! 익절가 :{upperband:<2.0f}, 수익 :{suik:<2.0f},                현재 시드 :{current_cash:<2.0f}\n")
+                    if isprint:
+                        print(row['Time'], f"롱 승리! 익절가 :{upperband:<2.0f}, 수익 :{suik:<2.0f},                현재 시드 :{current_cash:<2.0f}\n")
                     continue
 
                 # 손절
@@ -859,7 +870,8 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     lose_count += 1
-                    print(row['Time'], f"롱 패배...                                 현재 시드 :{current_cash:<2.0f}\n")
+                    if isprint:
+                        print(row['Time'], f"롱 패배...                                 현재 시드 :{current_cash:<2.0f}\n")
                     continue
 
             elif is_Short:
@@ -875,7 +887,8 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     win_count += 1
-                    print(row['Time'], f"숏 승리! 익절가 :{lowerband:<2.0f}, 수익 :{suik:<2.0f},              현재 시드 :{current_cash:<2.0f}\n")
+                    if isprint:
+                        print(row['Time'], f"숏 승리! 익절가 :{lowerband:<2.0f}, 수익 :{suik:<2.0f},              현재 시드 :{current_cash:<2.0f}\n")
                     continue
                 # 손절
                 elif low <= sonjul <= high:
@@ -886,7 +899,8 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                     elif current_cash < lowest_cash:
                         lowest_cash = current_cash
                     lose_count += 1
-                    print(row['Time'], f"숏 패배...                                            현재 시드 :{current_cash:<2.0f}\n")
+                    if isprint:
+                        print(row['Time'], f"숏 패배...                                            현재 시드 :{current_cash:<2.0f}\n")
                     continue
     print(
         f"Trade count: {str(trade_count):<2}  Win count: {str(win_count):<2}  Lose count: {str(lose_count):<2}"
@@ -953,6 +967,7 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
         # 현재 시각이 정각 지난지 3초 이내일 때
         if now.minute == 0 and now.second < 3: # now.minute == 0 and
             print("### 정각 !", now)
+            asyncio.run(tele_send_msg("I am alive."))
             is_zeongak = True
         else:
             if now.second < 1:
@@ -1013,6 +1028,7 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
 
                         future_create_order_market(symbol, SIDE_BUY, amount)
                         future_create_stop_loss_order(symbol, SIDE_SELL, amount, sonjul)
+                        asyncio.run(tele_send_msg("Long"))
 
                         if is_print:
                             print(f"롱. 양:{amount}, 손절:{sonjul}")
@@ -1034,6 +1050,7 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
 
                         future_create_order_market(symbol, SIDE_SELL, amount)
                         future_create_stop_loss_order(symbol, SIDE_BUY, amount, sonjul)
+                        asyncio.run(tele_send_msg("Short"))
                         if is_print:
                             print(f"숏. 양:{amount}, 손절:{sonjul}")
                     else:
@@ -1052,6 +1069,7 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
                     future_create_order_market(symbol, SIDE_SELL, amount)
                     future_cancel_all_open_order(symbol)
                     print("익절")
+                    asyncio.run(tele_send_msg("Take profit"))
                 else:
                     print("롱 진입중... ")
                     time.sleep(5)
@@ -1064,6 +1082,7 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
                     future_create_order_market(symbol, SIDE_BUY, abs(amount))
                     future_cancel_all_open_order(symbol)
                     print("익절")
+                    asyncio.run(tele_send_msg("Take profit"))
                 else:
                     print("숏 진입중... ")
                     time.sleep(5)
@@ -1071,6 +1090,8 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
 
         print(f"보류. 기울기 : {day_inclination}")
 
+async def tele_send_msg(text): #실행시킬 함수명 임의지정
+    await bot.send_message(chat_id,text)
 
 def backTesting_bull():
     return print("Hi")
@@ -1079,7 +1100,6 @@ def backTesting_bull():
 if __name__ == '__main__':
 
     time0 = time.time()
-
     ### Initiation
     # row 생략 없이 출력
     pd.set_option('display.max_rows', 20)
@@ -1103,46 +1123,11 @@ if __name__ == '__main__':
     leverage, amount = get_lev_amt(symbol, True)
 
     leverage = change_leverage(symbol, 10)
-    # do_trading_hwengbo(5, 2, client, symbol, is_print=True)
+    asyncio.run(tele_send_msg("[Start]"))
+    do_trading_hwengbo(5, 2, client, symbol, is_print=True)
 
-    ### 캔들 정보 가져오기 (현재)
-    candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_1d, candles_1w = get_candles(client,
-                                                                                                      symbol,
-                                                                                                      limit)
 
-    ### 보조지표 추출
-    candles_info_15m = get_candle_subdatas(candles_15m)
-    candles_info_1h = get_candle_subdatas(candles_1h)
-    candles_info_4h = get_candle_subdatas(candles_4h)
-    candles_info_1d = get_candle_subdatas(candles_1d)
 
-    ## 과거 데이터 & 보조지표 (Timestamp 안 이상함)
-    candles_history_15m = read_csv_data("15m")
-    candles_history_info_15m = get_candle_subdatas(candles_history_15m)
-
-    candles_history_1h = read_csv_data("1h")
-    candles_history_info_1h = get_candle_subdatas(candles_history_1h)
-
-    candles_history_4h = read_csv_data("4h")
-    candles_history_info_4h = get_candle_subdatas(candles_history_4h)
-
-    candles_history_1d = read_csv_data("1d")
-    candles_history_info_1d = get_candle_subdatas(candles_history_1d)
-
-    candles_history_1h_21 = pd.read_csv(f"candle_data/candle_data_1h_before_21.csv")
-    candles_history_info_1h_21 = get_candle_subdatas(candles_history_1h_21)
-
-    candles_history_4h_21 = pd.read_csv(f"candle_data/candle_data_4h_before_21.csv")
-    candles_history_info_4h_21 = get_candle_subdatas(candles_history_4h_21)
-
-    candles_history_1d_21 = pd.read_csv(f"candle_data/candle_data_1d_before_21.csv")
-    candles_history_info_1d_21 = get_candle_subdatas(candles_history_1d_21)
-
-    for i in range(5, 16):
-        backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, i, 2, 10, 0.001)
-        backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, i, 2, 10, 0.003)
-        backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, i, 2, 10, 0.005)
-        backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, i, 2, 10, 0.01)
 
 
 
