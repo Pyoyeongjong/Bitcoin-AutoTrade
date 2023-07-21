@@ -2,6 +2,7 @@ C:\Users\user\anaconda3\python.exe "C:\Users\user\OneDrive\바탕 화면\Bitcoin
 현재 포지션 : 없음
 USDT 잔고: 157.66553129
 현재 레버리지 :10, 시드 절반:0.026
+21~
 [[[1 - 0.5 - 40]]]
 Trade count: 70  Win count: 31  Lose count: 39  Current cash: 692602    Highest cash: 692602    Lowest cash: 10000   
 Trade count: 70  Win count: 31  Lose count: 39  Current cash: 1286248   Highest cash: 1286248   Lowest cash: 10000   
@@ -364,3 +365,376 @@ Trade count: 477  Win count: 230  Lose count: 246  Current cash: 476069    Highe
 Trade count: 353  Win count: 134  Lose count: 218  Current cash: 869093    Highest cash: 3426668   Lowest cash: 6474    
 
 종료 코드 0(으)로 완료된 프로세스
+
+
+18~20
+
+C:\Users\user\anaconda3\python.exe "C:\Users\user\OneDrive\바탕 화면\Bitcoin\main.py" 
+현재 포지션 : 없음
+USDT 잔고: 157.66553129
+현재 레버리지 :10, 시드 절반:0.026
+[[[1 - 0.5 - 40]]]
+Trade count: 65  Win count: 21  Lose count: 44  Current cash: 10257     Highest cash: 14942     Lowest cash: 2383    
+Trade count: 66  Win count: 20  Lose count: 46  Current cash: 11810     Highest cash: 15089     Lowest cash: 2577    
+Trade count: 65  Win count: 18  Lose count: 47  Current cash: 12349     Highest cash: 15383     Lowest cash: 2801    
+Trade count: 64  Win count: 14  Lose count: 50  Current cash: 5129      Highest cash: 15769     Lowest cash: 1293    
+Trade count: 64  Win count: 8   Lose count: 56  Current cash: 1006      Highest cash: 16513     Lowest cash: 479     
+[[[1 - 1 - 20]]]
+Trade count: 64  Win count: 35  Lose count: 29  Current cash: 68763     Highest cash: 77003     Lowest cash: 8621    
+Trade count: 63  Win count: 32  Lose count: 31  Current cash: 68238     Highest cash: 76415     Lowest cash: 9313    
+Trade count: 62  Win count: 29  Lose count: 33  Current cash: 62832     Highest cash: 70361     Lowest cash: 10000   
+Trade count: 60  Win count: 25  Lose count: 35  Current cash: 65983     Highest cash: 73890     Lowest cash: 9354    
+Trade count: 59  Win count: 18  Lose count: 41  Current cash: 40839     Highest cash: 69713     Lowest cash: 9909    
+[[[1 - 1.5 - 13]]]
+Trade count: 64  Win count: 41  Lose count: 23  Current cash: 38387     Highest cash: 42712     Lowest cash: 10000   
+Trade count: 63  Win count: 38  Lose count: 25  Current cash: 38112     Highest cash: 42406     Lowest cash: 10000   
+Trade count: 62  Win count: 34  Lose count: 28  Current cash: 30792     Highest cash: 34261     Lowest cash: 10000   
+Trade count: 60  Win count: 28  Lose count: 32  Current cash: 24482     Highest cash: 27454     Lowest cash: 6800    
+Trade count: 59  Win count: 22  Lose count: 37  Current cash: 32248     Highest cash: 40719     Lowest cash: 8359    
+[[[1 - 2 - 10]]]
+Trade count: 64  Win count: 44  Lose count: 20  Current cash: 26352     Highest cash: 29347     Lowest cash: 9771    
+Trade count: 63  Win count: 41  Lose count: 22  Current cash: 25386     Highest cash: 28271     Lowest cash: 10000   
+Trade count: 62  Win count: 36  Lose count: 26  Current cash: 17871     Highest cash: 19901     Lowest cash: 9140    
+Trade count: 60  Win count: 30  Lose count: 30  Current cash: 14715     Highest cash: 21253     Lowest cash: 6172    
+Trade count: 58  Win count: 25  Lose count: 33  Current cash: 28561     Highest cash: 31807     Lowest cash: 8542    
+[[[2 - 0.5 - 40]]]
+Trade count: 132  Win count: 46  Lose count: 86  Current cash: 8399      Highest cash: 16391     Lowest cash: 995     
+Trade count: 132  Win count: 43  Lose count: 89  Current cash: 14270     Highest cash: 20723     Lowest cash: 1224    
+Trade count: 126  Win count: 34  Lose count: 92  Current cash: 6888      Highest cash: 19614     Lowest cash: 1063    
+Trade count: 124  Win count: 30  Lose count: 94  Current cash: 8649      Highest cash: 20614     Lowest cash: 1164    
+Trade count: 124  Win count: 20  Lose count: 104  Current cash: 729       Highest cash: 22917     Lowest cash: 481     
+[[[2 - 1 - 20]]]
+Trade count: 128  Win count: 76  Lose count: 52  Current cash: 291811    Highest cash: 366345    Lowest cash: 8930    
+Trade count: 126  Win count: 71  Lose count: 55  Current cash: 530434    Highest cash: 665916    Lowest cash: 8930    
+Trade count: 119  Win count: 57  Lose count: 62  Current cash: 236883    Highest cash: 333024    Lowest cash: 8930    
+Trade count: 114  Win count: 48  Lose count: 66  Current cash: 241497    Highest cash: 339511    Lowest cash: 8930    
+Trade count: 108  Win count: 34  Lose count: 74  Current cash: 125743    Highest cash: 361870    Lowest cash: 8930    
+[[[2 - 1.5 - 13]]]
+Trade count: 126  Win count: 86  Lose count: 40  Current cash: 169613    Highest cash: 210323    Lowest cash: 8987    
+Trade count: 123  Win count: 80  Lose count: 43  Current cash: 202513    Highest cash: 251119    Lowest cash: 8987    
+Trade count: 116  Win count: 66  Lose count: 50  Current cash: 113757    Highest cash: 156954    Lowest cash: 8987    
+Trade count: 111  Win count: 57  Lose count: 54  Current cash: 136140    Highest cash: 187836    Lowest cash: 8987    
+Trade count: 103  Win count: 41  Lose count: 62  Current cash: 152752    Highest cash: 210756    Lowest cash: 8987    
+[[[2 - 2 - 10]]]
+Trade count: 126  Win count: 95  Lose count: 31  Current cash: 119853    Highest cash: 148965    Lowest cash: 8980    
+Trade count: 123  Win count: 89  Lose count: 34  Current cash: 138825    Highest cash: 172545    Lowest cash: 8980    
+Trade count: 115  Win count: 75  Lose count: 40  Current cash: 80475     Highest cash: 111388    Lowest cash: 8980    
+Trade count: 110  Win count: 64  Lose count: 46  Current cash: 82480     Highest cash: 114164    Lowest cash: 8980    
+Trade count: 100  Win count: 49  Lose count: 51  Current cash: 279764    Highest cash: 387230    Lowest cash: 8980    
+[[[3 - 0.5 - 40]]]
+Trade count: 221  Win count: 76  Lose count: 145  Current cash: 3687      Highest cash: 13288     Lowest cash: 464     
+Trade count: 215  Win count: 69  Lose count: 146  Current cash: 8104      Highest cash: 28280     Lowest cash: 602     
+Trade count: 209  Win count: 57  Lose count: 152  Current cash: 2815      Highest cash: 13717     Lowest cash: 352     
+Trade count: 201  Win count: 50  Lose count: 151  Current cash: 4809      Highest cash: 21058     Lowest cash: 373     
+Trade count: 193  Win count: 29  Lose count: 164  Current cash: 78        Highest cash: 15840     Lowest cash: 78      
+[[[3 - 1 - 20]]]
+Trade count: 201  Win count: 119  Lose count: 82  Current cash: 3791248   Highest cash: 5329961   Lowest cash: 7965    
+Trade count: 194  Win count: 108  Lose count: 86  Current cash: 6971977   Highest cash: 9801618   Lowest cash: 7965    
+Trade count: 190  Win count: 93  Lose count: 97  Current cash: 3548688   Highest cash: 6020822   Lowest cash: 7965    
+Trade count: 175  Win count: 78  Lose count: 97  Current cash: 4020396   Highest cash: 6329422   Lowest cash: 7965    
+Trade count: 164  Win count: 50  Lose count: 114  Current cash: 421906    Highest cash: 686832    Lowest cash: 7360    
+[[[3 - 1.5 - 13]]]
+Trade count: 197  Win count: 134  Lose count: 63  Current cash: 1086203   Highest cash: 1498664   Lowest cash: 8987    
+Trade count: 188  Win count: 122  Lose count: 66  Current cash: 1471720   Highest cash: 2030572   Lowest cash: 8987    
+Trade count: 183  Win count: 105  Lose count: 78  Current cash: 714125    Highest cash: 1102658   Lowest cash: 8987    
+Trade count: 166  Win count: 87  Lose count: 79  Current cash: 752401    Highest cash: 1155069   Lowest cash: 8987    
+Trade count: 150  Win count: 57  Lose count: 93  Current cash: 344801    Highest cash: 529332    Lowest cash: 8064    
+[[[3 - 2 - 10]]]
+Trade count: 200  Win count: 150  Lose count: 50  Current cash: 447564    Highest cash: 619487    Lowest cash: 8980    
+Trade count: 190  Win count: 137  Lose count: 53  Current cash: 547761    Highest cash: 758174    Lowest cash: 8980    
+Trade count: 179  Win count: 118  Lose count: 61  Current cash: 365803    Highest cash: 563854    Lowest cash: 8980    
+Trade count: 163  Win count: 100  Lose count: 63  Current cash: 582710    Highest cash: 898199    Lowest cash: 8980    
+Trade count: 142  Win count: 69  Lose count: 73  Current cash: 1270922   Highest cash: 1959020   Lowest cash: 8046    
+[[[4 - 0.5 - 40]]]
+Trade count: 293  Win count: 99  Lose count: 194  Current cash: 1546      Highest cash: 10000     Lowest cash: 270     
+Trade count: 286  Win count: 88  Lose count: 198  Current cash: 1640      Highest cash: 10000     Lowest cash: 379     
+Trade count: 278  Win count: 76  Lose count: 202  Current cash: 1749      Highest cash: 10906     Lowest cash: 368     
+Trade count: 263  Win count: 63  Lose count: 200  Current cash: 1275      Highest cash: 10000     Lowest cash: 333     
+Trade count: 242  Win count: 36  Lose count: 206  Current cash: 40        Highest cash: 10000     Lowest cash: 40      
+[[[4 - 1 - 20]]]
+Trade count: 270  Win count: 154  Lose count: 116  Current cash: 1945463   Highest cash: 3374221   Lowest cash: 5054    
+Trade count: 260  Win count: 139  Lose count: 121  Current cash: 3329007   Highest cash: 5671692   Lowest cash: 5054    
+Trade count: 251  Win count: 119  Lose count: 132  Current cash: 3188486   Highest cash: 6798963   Lowest cash: 5054    
+Trade count: 223  Win count: 95  Lose count: 128  Current cash: 2276822   Highest cash: 4470588   Lowest cash: 5054    
+Trade count: 199  Win count: 67  Lose count: 132  Current cash: 7933847   Highest cash: 18197993  Lowest cash: 5054    
+[[[4 - 1.5 - 13]]]
+Trade count: 256  Win count: 172  Lose count: 84  Current cash: 1104276   Highest cash: 1605976   Lowest cash: 4820    
+Trade count: 243  Win count: 153  Lose count: 90  Current cash: 830153    Highest cash: 1192777   Lowest cash: 4849    
+Trade count: 238  Win count: 136  Lose count: 102  Current cash: 776572    Highest cash: 1336320   Lowest cash: 4971    
+Trade count: 207  Win count: 106  Lose count: 101  Current cash: 386906    Highest cash: 628797    Lowest cash: 5197    
+Trade count: 182  Win count: 72  Lose count: 110  Current cash: 662801    Highest cash: 1017518   Lowest cash: 4229    
+[[[4 - 2 - 10]]]
+Trade count: 253  Win count: 189  Lose count: 64  Current cash: 665656    Highest cash: 921355    Lowest cash: 6608    
+Trade count: 240  Win count: 170  Lose count: 70  Current cash: 497187    Highest cash: 688173    Lowest cash: 6666    
+Trade count: 230  Win count: 153  Lose count: 77  Current cash: 706885    Highest cash: 1089604   Lowest cash: 6996    
+Trade count: 204  Win count: 125  Lose count: 79  Current cash: 682182    Highest cash: 1051527   Lowest cash: 7225    
+Trade count: 168  Win count: 84  Lose count: 84  Current cash: 3862643   Highest cash: 5953940   Lowest cash: 6473    
+[[[5 - 0.5 - 40]]]
+Trade count: 348  Win count: 114  Lose count: 234  Current cash: 5923      Highest cash: 18306     Lowest cash: 145     
+Trade count: 338  Win count: 101  Lose count: 237  Current cash: 6970      Highest cash: 21200     Lowest cash: 182     
+Trade count: 327  Win count: 86  Lose count: 241  Current cash: 6805      Highest cash: 33724     Lowest cash: 188     
+Trade count: 311  Win count: 70  Lose count: 241  Current cash: 1421      Highest cash: 14780     Lowest cash: 434     
+Trade count: 284  Win count: 42  Lose count: 242  Current cash: 60        Highest cash: 12675     Lowest cash: 46      
+[[[5 - 1 - 20]]]
+Trade count: 319  Win count: 174  Lose count: 145  Current cash: 8395355   Highest cash: 18300369  Lowest cash: 4513    
+Trade count: 307  Win count: 157  Lose count: 150  Current cash: 12401624  Highest cash: 26555026  Lowest cash: 4513    
+Trade count: 293  Win count: 131  Lose count: 162  Current cash: 7011288   Highest cash: 18789980  Lowest cash: 4513    
+Trade count: 265  Win count: 107  Lose count: 158  Current cash: 7913093   Highest cash: 19527742  Lowest cash: 4513    
+Trade count: 231  Win count: 76  Lose count: 155  Current cash: 69571037  Highest cash: 154322457  Lowest cash: 4513    
+[[[5 - 1.5 - 13]]]
+Trade count: 301  Win count: 198  Lose count: 103  Current cash: 10153520  Highest cash: 15612494  Lowest cash: 6912    
+Trade count: 285  Win count: 177  Lose count: 108  Current cash: 9532348   Highest cash: 14657353  Lowest cash: 6986    
+Trade count: 274  Win count: 153  Lose count: 121  Current cash: 5654519   Highest cash: 9909194   Lowest cash: 7231    
+Trade count: 245  Win count: 123  Lose count: 122  Current cash: 3076648   Highest cash: 4798731   Lowest cash: 7633    
+Trade count: 209  Win count: 84  Lose count: 125  Current cash: 8781847   Highest cash: 10872185  Lowest cash: 5707    
+[[[5 - 2 - 10]]]
+Trade count: 302  Win count: 222  Lose count: 80  Current cash: 3396861   Highest cash: 4701701   Lowest cash: 8814    
+Trade count: 282  Win count: 197  Lose count: 85  Current cash: 3058808   Highest cash: 4233792   Lowest cash: 8927    
+Trade count: 264  Win count: 173  Lose count: 91  Current cash: 4140362   Highest cash: 5730804   Lowest cash: 9442    
+Trade count: 238  Win count: 142  Lose count: 96  Current cash: 3312545   Highest cash: 4584997   Lowest cash: 9829    
+Trade count: 193  Win count: 98  Lose count: 95  Current cash: 54326507  Highest cash: 67374730  Lowest cash: 8048    
+[[[6 - 0.5 - 40]]]
+Trade count: 400  Win count: 129  Lose count: 271  Current cash: 17292     Highest cash: 79957     Lowest cash: 192     
+Trade count: 392  Win count: 117  Lose count: 275  Current cash: 31445     Highest cash: 138442    Lowest cash: 291     
+Trade count: 378  Win count: 95  Lose count: 283  Current cash: 6929      Highest cash: 49714     Lowest cash: 157     
+Trade count: 361  Win count: 75  Lose count: 286  Current cash: 350       Highest cash: 13553     Lowest cash: 194     
+Trade count: 323  Win count: 48  Lose count: 275  Current cash: 126       Highest cash: 18947     Lowest cash: 31      
+[[[6 - 1 - 20]]]
+Trade count: 375  Win count: 195  Lose count: 180  Current cash: 7937656   Highest cash: 24379146  Lowest cash: 4493    
+Trade count: 366  Win count: 178  Lose count: 188  Current cash: 13142950  Highest cash: 39652125  Lowest cash: 4513    
+Trade count: 343  Win count: 144  Lose count: 199  Current cash: 4396669   Highest cash: 16601899  Lowest cash: 4513    
+Trade count: 311  Win count: 115  Lose count: 196  Current cash: 2654784   Highest cash: 9230822   Lowest cash: 4513    
+Trade count: 269  Win count: 82  Lose count: 187  Current cash: 29933394  Highest cash: 83450109  Lowest cash: 4513    
+[[[6 - 1.5 - 13]]]
+Trade count: 356  Win count: 223  Lose count: 133  Current cash: 7857336   Highest cash: 15005680  Lowest cash: 6306    
+Trade count: 340  Win count: 203  Lose count: 137  Current cash: 10105319  Highest cash: 19298802  Lowest cash: 6407    
+Trade count: 322  Win count: 169  Lose count: 153  Current cash: 3041748   Highest cash: 6620496   Lowest cash: 6704    
+Trade count: 291  Win count: 137  Lose count: 154  Current cash: 1525223   Highest cash: 2954653   Lowest cash: 7151    
+Trade count: 244  Win count: 92  Lose count: 152  Current cash: 6061644   Highest cash: 9320648   Lowest cash: 5612    
+[[[6 - 2 - 10]]]
+Trade count: 353  Win count: 254  Lose count: 99  Current cash: 5993513   Highest cash: 10333387  Lowest cash: 8634    
+Trade count: 333  Win count: 230  Lose count: 103  Current cash: 7712501   Highest cash: 13297086  Lowest cash: 8668    
+Trade count: 306  Win count: 193  Lose count: 113  Current cash: 5057051   Highest cash: 8718838   Lowest cash: 8738    
+Trade count: 278  Win count: 160  Lose count: 118  Current cash: 4044840   Highest cash: 6973689   Lowest cash: 8807    
+Trade count: 222  Win count: 109  Lose count: 113  Current cash: 120187248  Highest cash: 185663969  Lowest cash: 8983    
+[[[7 - 0.5 - 40]]]
+Trade count: 458  Win count: 142  Lose count: 316  Current cash: 1641      Highest cash: 15120     Lowest cash: 654     
+Trade count: 454  Win count: 130  Lose count: 324  Current cash: 1984      Highest cash: 14293     Lowest cash: 839     
+Trade count: 434  Win count: 106  Lose count: 328  Current cash: 1070      Highest cash: 23828     Lowest cash: 282     
+Trade count: 418  Win count: 86  Lose count: 332  Current cash: 77        Highest cash: 40263     Lowest cash: 77      
+Trade count: 373  Win count: 57  Lose count: 316  Current cash: 108       Highest cash: 56211     Lowest cash: 108     
+[[[7 - 1 - 20]]]
+Trade count: 422  Win count: 218  Lose count: 204  Current cash: 21781549  Highest cash: 65303603  Lowest cash: 4493    
+Trade count: 412  Win count: 198  Lose count: 214  Current cash: 23512637  Highest cash: 68638172  Lowest cash: 4513    
+Trade count: 383  Win count: 160  Lose count: 223  Current cash: 9701681   Highest cash: 34074557  Lowest cash: 4513    
+Trade count: 350  Win count: 128  Lose count: 222  Current cash: 4157037   Highest cash: 11074775  Lowest cash: 4513    
+Trade count: 309  Win count: 91  Lose count: 218  Current cash: 15040789  Highest cash: 70733004  Lowest cash: 4513    
+[[[7 - 1.5 - 13]]]
+Trade count: 399  Win count: 248  Lose count: 151  Current cash: 20620115  Highest cash: 39990661  Lowest cash: 5716    
+Trade count: 385  Win count: 228  Lose count: 157  Current cash: 21875167  Highest cash: 42170399  Lowest cash: 5842    
+Trade count: 362  Win count: 189  Lose count: 173  Current cash: 5063487   Highest cash: 10827332  Lowest cash: 6184    
+Trade count: 325  Win count: 150  Lose count: 175  Current cash: 1704027   Highest cash: 2674114   Lowest cash: 6673    
+Trade count: 279  Win count: 103  Lose count: 176  Current cash: 4880081   Highest cash: 7503825   Lowest cash: 5389    
+[[[7 - 2 - 10]]]
+Trade count: 392  Win count: 280  Lose count: 112  Current cash: 10704233  Highest cash: 19143492  Lowest cash: 8634    
+Trade count: 374  Win count: 256  Lose count: 118  Current cash: 11974032  Highest cash: 21313501  Lowest cash: 8668    
+Trade count: 342  Win count: 213  Lose count: 129  Current cash: 5960222   Highest cash: 10384772  Lowest cash: 8738    
+Trade count: 309  Win count: 179  Lose count: 130  Current cash: 6640008   Highest cash: 9464149   Lowest cash: 8807    
+Trade count: 244  Win count: 121  Lose count: 123  Current cash: 207354418  Highest cash: 320318877  Lowest cash: 8983    
+[[[8 - 0.5 - 40]]]
+Trade count: 519  Win count: 159  Lose count: 360  Current cash: 1504      Highest cash: 25008     Lowest cash: 1504    
+Trade count: 513  Win count: 145  Lose count: 368  Current cash: 1741      Highest cash: 30379     Lowest cash: 1741    
+Trade count: 489  Win count: 121  Lose count: 368  Current cash: 2316      Highest cash: 63683     Lowest cash: 1044    
+Trade count: 472  Win count: 100  Lose count: 372  Current cash: 267       Highest cash: 147785    Lowest cash: 267     
+Trade count: 420  Win count: 57  Lose count: 363  Current cash: 1         Highest cash: 113786    Lowest cash: 1       
+[[[8 - 1 - 20]]]
+Trade count: 477  Win count: 243  Lose count: 234  Current cash: 39540609  Highest cash: 135294016  Lowest cash: 8807    
+Trade count: 465  Win count: 221  Lose count: 244  Current cash: 39310161  Highest cash: 129987368  Lowest cash: 8901    
+Trade count: 431  Win count: 179  Lose count: 252  Current cash: 17441964  Highest cash: 76564311  Lowest cash: 9010    
+Trade count: 398  Win count: 146  Lose count: 252  Current cash: 9520250   Highest cash: 31239468  Lowest cash: 9120    
+Trade count: 348  Win count: 96  Lose count: 252  Current cash: 2975166   Highest cash: 55156045  Lowest cash: 9396    
+[[[8 - 1.5 - 13]]]
+Trade count: 449  Win count: 273  Lose count: 176  Current cash: 17381905  Highest cash: 36509841  Lowest cash: 5931    
+Trade count: 433  Win count: 253  Lose count: 180  Current cash: 25139975  Highest cash: 51290950  Lowest cash: 6061    
+Trade count: 399  Win count: 210  Lose count: 189  Current cash: 12843850  Highest cash: 29886486  Lowest cash: 6414    
+Trade count: 360  Win count: 168  Lose count: 192  Current cash: 4878798   Highest cash: 8243708   Lowest cash: 6920    
+Trade count: 305  Win count: 110  Lose count: 195  Current cash: 3248400   Highest cash: 5794372   Lowest cash: 5585    
+[[[8 - 2 - 10]]]
+Trade count: 432  Win count: 305  Lose count: 127  Current cash: 13531881  Highest cash: 24745777  Lowest cash: 8902    
+Trade count: 412  Win count: 279  Lose count: 133  Current cash: 15460263  Highest cash: 30384986  Lowest cash: 8937    
+Trade count: 375  Win count: 232  Lose count: 143  Current cash: 8209742   Highest cash: 14847464  Lowest cash: 9007    
+Trade count: 337  Win count: 195  Lose count: 142  Current cash: 16039766  Highest cash: 20929235  Lowest cash: 9077    
+Trade count: 265  Win count: 127  Lose count: 138  Current cash: 120511183  Highest cash: 224915015  Lowest cash: 9254    
+[[[9 - 0.5 - 40]]]
+Trade count: 575  Win count: 169  Lose count: 406  Current cash: 566       Highest cash: 57119     Lowest cash: 221     
+Trade count: 568  Win count: 154  Lose count: 414  Current cash: 570       Highest cash: 58807     Lowest cash: 158     
+Trade count: 544  Win count: 130  Lose count: 414  Current cash: 938       Highest cash: 62290     Lowest cash: 50      
+Trade count: 527  Win count: 107  Lose count: 420  Current cash: 50        Highest cash: 140359    Lowest cash: 21      
+Trade count: 471  Win count: 64  Lose count: 407  Current cash: 0         Highest cash: 300342    Lowest cash: 0       
+[[[9 - 1 - 20]]]
+Trade count: 524  Win count: 254  Lose count: 270  Current cash: 6787674   Highest cash: 22403189  Lowest cash: 10000   
+Trade count: 511  Win count: 230  Lose count: 281  Current cash: 4047165   Highest cash: 14804869  Lowest cash: 10000   
+Trade count: 472  Win count: 187  Lose count: 285  Current cash: 2359026   Highest cash: 9732127   Lowest cash: 10000   
+Trade count: 440  Win count: 152  Lose count: 288  Current cash: 823025    Highest cash: 4306982   Lowest cash: 10000   
+Trade count: 381  Win count: 100  Lose count: 281  Current cash: 714909    Highest cash: 14245981  Lowest cash: 10000   
+[[[9 - 1.5 - 13]]]
+Trade count: 492  Win count: 291  Lose count: 201  Current cash: 9450338   Highest cash: 17955176  Lowest cash: 8523    
+Trade count: 474  Win count: 270  Lose count: 204  Current cash: 14815892  Highest cash: 27179294  Lowest cash: 8752    
+Trade count: 439  Win count: 226  Lose count: 213  Current cash: 8587624   Highest cash: 17755272  Lowest cash: 9351    
+Trade count: 399  Win count: 183  Lose count: 216  Current cash: 3547603   Highest cash: 7808518   Lowest cash: 10000   
+Trade count: 334  Win count: 119  Lose count: 215  Current cash: 3263851   Highest cash: 6488279   Lowest cash: 8417    
+[[[9 - 2 - 10]]]
+Trade count: 466  Win count: 323  Lose count: 143  Current cash: 8584780   Highest cash: 13026613  Lowest cash: 10000   
+Trade count: 444  Win count: 295  Lose count: 149  Current cash: 8708142   Highest cash: 14134655  Lowest cash: 10000   
+Trade count: 402  Win count: 247  Lose count: 155  Current cash: 8692554   Highest cash: 12862349  Lowest cash: 10000   
+Trade count: 363  Win count: 203  Lose count: 160  Current cash: 6228573   Highest cash: 9070597   Lowest cash: 10000   
+Trade count: 285  Win count: 127  Lose count: 158  Current cash: 16597766  Highest cash: 34572655  Lowest cash: 10000   
+[[[10 - 0.5 - 40]]]
+Trade count: 627  Win count: 180  Lose count: 447  Current cash: 131       Highest cash: 50521     Lowest cash: 125     
+Trade count: 618  Win count: 168  Lose count: 450  Current cash: 691       Highest cash: 57437     Lowest cash: 205     
+Trade count: 596  Win count: 144  Lose count: 452  Current cash: 1653      Highest cash: 136066    Lowest cash: 61      
+Trade count: 574  Win count: 118  Lose count: 456  Current cash: 70        Highest cash: 414283    Lowest cash: 22      
+Trade count: 513  Win count: 74  Lose count: 439  Current cash: 2         Highest cash: 590662    Lowest cash: 2       
+[[[10 - 1 - 20]]]
+Trade count: 573  Win count: 266  Lose count: 307  Current cash: 233102    Highest cash: 1865550   Lowest cash: 10000   
+Trade count: 558  Win count: 244  Lose count: 314  Current cash: 353945    Highest cash: 2313163   Lowest cash: 10000   
+Trade count: 515  Win count: 198  Lose count: 317  Current cash: 192729    Highest cash: 997079    Lowest cash: 10000   
+Trade count: 481  Win count: 161  Lose count: 320  Current cash: 90480     Highest cash: 2308765   Lowest cash: 10000   
+Trade count: 419  Win count: 108  Lose count: 311  Current cash: 120249    Highest cash: 15590413  Lowest cash: 10000   
+[[[10 - 1.5 - 13]]]
+Trade count: 535  Win count: 309  Lose count: 226  Current cash: 2095430   Highest cash: 4684961   Lowest cash: 7660    
+Trade count: 510  Win count: 285  Lose count: 225  Current cash: 4531620   Highest cash: 9722028   Lowest cash: 7866    
+Trade count: 473  Win count: 239  Lose count: 234  Current cash: 2467440   Highest cash: 5892948   Lowest cash: 8404    
+Trade count: 432  Win count: 200  Lose count: 232  Current cash: 5263675   Highest cash: 12150300  Lowest cash: 9154    
+Trade count: 368  Win count: 132  Lose count: 236  Current cash: 2844633   Highest cash: 8305144   Lowest cash: 7565    
+[[[10 - 2 - 10]]]
+Trade count: 509  Win count: 339  Lose count: 170  Current cash: 1061113   Highest cash: 1615829   Lowest cash: 10000   
+Trade count: 483  Win count: 312  Lose count: 171  Current cash: 2039831   Highest cash: 3292240   Lowest cash: 10000   
+Trade count: 440  Win count: 261  Lose count: 179  Current cash: 1450200   Highest cash: 2047276   Lowest cash: 10000   
+Trade count: 395  Win count: 214  Lose count: 181  Current cash: 2354120   Highest cash: 3662578   Lowest cash: 10000   
+Trade count: 311  Win count: 139  Lose count: 172  Current cash: 21091903  Highest cash: 44846511  Lowest cash: 10000   
+[[[11 - 0.5 - 40]]]
+Trade count: 680  Win count: 187  Lose count: 493  Current cash: 9         Highest cash: 45849     Lowest cash: 9       
+Trade count: 674  Win count: 175  Lose count: 499  Current cash: 34        Highest cash: 55765     Lowest cash: 34      
+Trade count: 645  Win count: 151  Lose count: 494  Current cash: 247       Highest cash: 138929    Lowest cash: 20      
+Trade count: 623  Win count: 125  Lose count: 498  Current cash: 16        Highest cash: 311731    Lowest cash: 10      
+Trade count: 557  Win count: 80  Lose count: 477  Current cash: 1         Highest cash: 230824    Lowest cash: 1       
+[[[11 - 1 - 20]]]
+Trade count: 615  Win count: 277  Lose count: 338  Current cash: 34228     Highest cash: 925018    Lowest cash: 10000   
+Trade count: 602  Win count: 256  Lose count: 346  Current cash: 54795     Highest cash: 1183268   Lowest cash: 10000   
+Trade count: 554  Win count: 207  Lose count: 347  Current cash: 38275     Highest cash: 450341    Lowest cash: 10000   
+Trade count: 522  Win count: 172  Lose count: 350  Current cash: 28900     Highest cash: 1237317   Lowest cash: 10000   
+Trade count: 444  Win count: 111  Lose count: 333  Current cash: 40994     Highest cash: 3788483   Lowest cash: 10000   
+[[[11 - 1.5 - 13]]]
+Trade count: 565  Win count: 318  Lose count: 247  Current cash: 310579    Highest cash: 1188027   Lowest cash: 6884    
+Trade count: 544  Win count: 295  Lose count: 249  Current cash: 558244    Highest cash: 2049032   Lowest cash: 7069    
+Trade count: 503  Win count: 245  Lose count: 258  Current cash: 258645    Highest cash: 1175916   Lowest cash: 7450    
+Trade count: 469  Win count: 212  Lose count: 257  Current cash: 1032595   Highest cash: 4537480   Lowest cash: 8227    
+Trade count: 391  Win count: 134  Lose count: 257  Current cash: 387642    Highest cash: 1106970   Lowest cash: 6799    
+[[[11 - 2 - 10]]]
+Trade count: 537  Win count: 352  Lose count: 185  Current cash: 449802    Highest cash: 1263743   Lowest cash: 10000   
+Trade count: 512  Win count: 324  Lose count: 188  Current cash: 711033    Highest cash: 1881377   Lowest cash: 10000   
+Trade count: 464  Win count: 270  Lose count: 194  Current cash: 619607    Highest cash: 1351245   Lowest cash: 10000   
+Trade count: 422  Win count: 226  Lose count: 196  Current cash: 1127886   Highest cash: 3587638   Lowest cash: 9976    
+Trade count: 325  Win count: 146  Lose count: 179  Current cash: 33053422  Highest cash: 87350211  Lowest cash: 10000   
+[[[12 - 0.5 - 40]]]
+Trade count: 717  Win count: 188  Lose count: 529  Current cash: 0         Highest cash: 45849     Lowest cash: 0       
+Trade count: 708  Win count: 176  Lose count: 532  Current cash: 1         Highest cash: 46665     Lowest cash: 1       
+Trade count: 680  Win count: 151  Lose count: 529  Current cash: 3         Highest cash: 48325     Lowest cash: 1       
+Trade count: 655  Win count: 125  Lose count: 530  Current cash: 0         Highest cash: 50021     Lowest cash: 0       
+Trade count: 576  Win count: 80  Lose count: 496  Current cash: 0         Highest cash: 97539     Lowest cash: 0       
+[[[12 - 1 - 20]]]
+Trade count: 654  Win count: 289  Lose count: 365  Current cash: 23474     Highest cash: 850825    Lowest cash: 10000   
+Trade count: 639  Win count: 266  Lose count: 373  Current cash: 32323     Highest cash: 1368653   Lowest cash: 10000   
+Trade count: 590  Win count: 217  Lose count: 373  Current cash: 34700     Highest cash: 532653    Lowest cash: 10000   
+Trade count: 555  Win count: 183  Lose count: 372  Current cash: 51876     Highest cash: 4377534   Lowest cash: 10000   
+Trade count: 464  Win count: 114  Lose count: 350  Current cash: 20543     Highest cash: 6637148   Lowest cash: 10000   
+[[[12 - 1.5 - 13]]]
+Trade count: 605  Win count: 335  Lose count: 270  Current cash: 220961    Highest cash: 689940    Lowest cash: 6271    
+Trade count: 581  Win count: 308  Lose count: 273  Current cash: 272980    Highest cash: 855361    Lowest cash: 6624    
+Trade count: 543  Win count: 261  Lose count: 282  Current cash: 240878    Highest cash: 879409    Lowest cash: 7159    
+Trade count: 507  Win count: 225  Lose count: 282  Current cash: 635787    Highest cash: 2219275   Lowest cash: 7886    
+Trade count: 417  Win count: 141  Lose count: 276  Current cash: 284237    Highest cash: 974399    Lowest cash: 5599    
+[[[12 - 2 - 10]]]
+Trade count: 578  Win count: 374  Lose count: 204  Current cash: 370163    Highest cash: 782695    Lowest cash: 9570    
+Trade count: 551  Win count: 343  Lose count: 208  Current cash: 455688    Highest cash: 1261289   Lowest cash: 9646    
+Trade count: 498  Win count: 285  Lose count: 213  Current cash: 386726    Highest cash: 744294    Lowest cash: 9799    
+Trade count: 456  Win count: 240  Lose count: 216  Current cash: 830902    Highest cash: 4073676   Lowest cash: 8939    
+Trade count: 340  Win count: 151  Lose count: 189  Current cash: 27172121  Highest cash: 71807709  Lowest cash: 9294    
+[[[13 - 0.5 - 40]]]
+Trade count: 758  Win count: 191  Lose count: 567  Current cash: 0         Highest cash: 45849     Lowest cash: 0       
+Trade count: 749  Win count: 178  Lose count: 571  Current cash: 0         Highest cash: 46665     Lowest cash: 0       
+Trade count: 717  Win count: 154  Lose count: 563  Current cash: 0         Highest cash: 48325     Lowest cash: 0       
+Trade count: 689  Win count: 127  Lose count: 562  Current cash: 0         Highest cash: 50021     Lowest cash: 0       
+Trade count: 611  Win count: 82  Lose count: 529  Current cash: 0         Highest cash: 54419     Lowest cash: 0       
+[[[13 - 1 - 20]]]
+Trade count: 689  Win count: 297  Lose count: 392  Current cash: 5142      Highest cash: 152329    Lowest cash: 3723    
+Trade count: 674  Win count: 271  Lose count: 403  Current cash: 3080      Highest cash: 157087    Lowest cash: 2213    
+Trade count: 620  Win count: 220  Lose count: 400  Current cash: 3932      Highest cash: 141950    Lowest cash: 2784    
+Trade count: 582  Win count: 184  Lose count: 398  Current cash: 5071      Highest cash: 854185    Lowest cash: 3539    
+Trade count: 488  Win count: 114  Lose count: 374  Current cash: 1740      Highest cash: 1445791   Lowest cash: 1740    
+[[[13 - 1.5 - 13]]]
+Trade count: 639  Win count: 345  Lose count: 294  Current cash: 58888     Highest cash: 171876    Lowest cash: 5329    
+Trade count: 615  Win count: 316  Lose count: 299  Current cash: 48342     Highest cash: 213561    Lowest cash: 5535    
+Trade count: 573  Win count: 270  Lose count: 303  Current cash: 108252    Highest cash: 319025    Lowest cash: 5683    
+Trade count: 532  Win count: 232  Lose count: 300  Current cash: 383744    Highest cash: 1120809   Lowest cash: 7077    
+Trade count: 433  Win count: 146  Lose count: 287  Current cash: 287024    Highest cash: 756960    Lowest cash: 4832    
+[[[13 - 2 - 10]]]
+Trade count: 610  Win count: 387  Lose count: 223  Current cash: 126621    Highest cash: 290378    Lowest cash: 8575    
+Trade count: 582  Win count: 353  Lose count: 229  Current cash: 104844    Highest cash: 354416    Lowest cash: 8643    
+Trade count: 529  Win count: 296  Lose count: 233  Current cash: 131998    Highest cash: 313323    Lowest cash: 8780    
+Trade count: 481  Win count: 250  Lose count: 231  Current cash: 545364    Highest cash: 2135278   Lowest cash: 8009    
+Trade count: 358  Win count: 155  Lose count: 203  Current cash: 13693198  Highest cash: 40299073  Lowest cash: 8327    
+[[[14 - 0.5 - 40]]]
+Trade count: 794  Win count: 194  Lose count: 600  Current cash: 0         Highest cash: 45849     Lowest cash: 0       
+Trade count: 785  Win count: 180  Lose count: 605  Current cash: 0         Highest cash: 46665     Lowest cash: 0       
+Trade count: 753  Win count: 157  Lose count: 596  Current cash: 0         Highest cash: 48325     Lowest cash: 0       
+Trade count: 722  Win count: 131  Lose count: 591  Current cash: 0         Highest cash: 50021     Lowest cash: 0       
+Trade count: 642  Win count: 85  Lose count: 557  Current cash: 0         Highest cash: 54419     Lowest cash: 0       
+[[[14 - 1 - 20]]]
+Trade count: 713  Win count: 298  Lose count: 415  Current cash: 326       Highest cash: 51379     Lowest cash: 265     
+Trade count: 694  Win count: 270  Lose count: 424  Current cash: 175       Highest cash: 49654     Lowest cash: 141     
+Trade count: 644  Win count: 221  Lose count: 423  Current cash: 174       Highest cash: 68339     Lowest cash: 138     
+Trade count: 605  Win count: 182  Lose count: 423  Current cash: 152       Highest cash: 136720    Lowest cash: 119     
+Trade count: 510  Win count: 111  Lose count: 399  Current cash: 35        Highest cash: 120404    Lowest cash: 35      
+[[[14 - 1.5 - 13]]]
+Trade count: 662  Win count: 350  Lose count: 312  Current cash: 12926     Highest cash: 43515     Lowest cash: 2691    
+Trade count: 635  Win count: 318  Lose count: 317  Current cash: 8789      Highest cash: 59276     Lowest cash: 3450    
+Trade count: 598  Win count: 275  Lose count: 323  Current cash: 17373     Highest cash: 79664     Lowest cash: 2442    
+Trade count: 553  Win count: 234  Lose count: 319  Current cash: 68319     Highest cash: 351794    Lowest cash: 6350    
+Trade count: 443  Win count: 146  Lose count: 297  Current cash: 108486    Highest cash: 570532    Lowest cash: 3439    
+[[[14 - 2 - 10]]]
+Trade count: 635  Win count: 398  Lose count: 237  Current cash: 91267     Highest cash: 223347    Lowest cash: 7683    
+Trade count: 604  Win count: 363  Lose count: 241  Current cash: 85025     Highest cash: 330490    Lowest cash: 7344    
+Trade count: 552  Win count: 310  Lose count: 242  Current cash: 289855    Highest cash: 621247    Lowest cash: 7867    
+Trade count: 500  Win count: 258  Lose count: 242  Current cash: 821924    Highest cash: 2476709   Lowest cash: 7176    
+Trade count: 376  Win count: 161  Lose count: 215  Current cash: 11642035  Highest cash: 34262501  Lowest cash: 7461    
+[[[15 - 0.5 - 40]]]
+Trade count: 836  Win count: 198  Lose count: 638  Current cash: 0         Highest cash: 45849     Lowest cash: 0       
+Trade count: 824  Win count: 187  Lose count: 637  Current cash: 0         Highest cash: 46665     Lowest cash: 0       
+Trade count: 790  Win count: 163  Lose count: 627  Current cash: 0         Highest cash: 48325     Lowest cash: 0       
+Trade count: 754  Win count: 136  Lose count: 618  Current cash: 0         Highest cash: 50021     Lowest cash: 0       
+Trade count: 672  Win count: 87  Lose count: 585  Current cash: 0         Highest cash: 54419     Lowest cash: 0       
+[[[15 - 1 - 20]]]
+Trade count: 742  Win count: 304  Lose count: 438  Current cash: 85        Highest cash: 32556     Lowest cash: 69      
+Trade count: 723  Win count: 276  Lose count: 447  Current cash: 45        Highest cash: 31738     Lowest cash: 36      
+Trade count: 673  Win count: 225  Lose count: 448  Current cash: 32        Highest cash: 44464     Lowest cash: 26      
+Trade count: 629  Win count: 186  Lose count: 443  Current cash: 44        Highest cash: 90523     Lowest cash: 35      
+Trade count: 534  Win count: 111  Lose count: 423  Current cash: 3         Highest cash: 81965     Lowest cash: 3       
+[[[15 - 1.5 - 13]]]
+Trade count: 686  Win count: 355  Lose count: 331  Current cash: 3903      Highest cash: 25030     Lowest cash: 1730    
+Trade count: 659  Win count: 323  Lose count: 336  Current cash: 2487      Highest cash: 27284     Lowest cash: 2206    
+Trade count: 620  Win count: 279  Lose count: 341  Current cash: 5907      Highest cash: 33564     Lowest cash: 1530    
+Trade count: 570  Win count: 236  Lose count: 334  Current cash: 22309     Highest cash: 197174    Lowest cash: 5320    
+Trade count: 458  Win count: 148  Lose count: 310  Current cash: 45112     Highest cash: 596946    Lowest cash: 3091    
+[[[15 - 2 - 10]]]
+Trade count: 659  Win count: 408  Lose count: 251  Current cash: 50100     Highest cash: 204107    Lowest cash: 6899    
+Trade count: 627  Win count: 371  Lose count: 256  Current cash: 36020     Highest cash: 237908    Lowest cash: 6594    
+Trade count: 571  Win count: 315  Lose count: 256  Current cash: 143900    Highest cash: 426076    Lowest cash: 7064    
+Trade count: 513  Win count: 261  Lose count: 252  Current cash: 390175    Highest cash: 1820209   Lowest cash: 6444    
+Trade count: 392  Win count: 163  Lose count: 229  Current cash: 3643859   Highest cash: 11968609  Lowest cash: 6700    
+
+종료 코드 0(으)로 완료된 프로세스
+
+
+

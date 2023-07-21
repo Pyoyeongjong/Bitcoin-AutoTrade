@@ -967,10 +967,11 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
         # 현재 시각이 정각 지난지 3초 이내일 때
         if now.minute == 0 and now.second < 3: # now.minute == 0 and
             print("### 정각 !", now)
-            asyncio.run(tele_send_msg("I am alive."))
+            bot.send_message(chat_id = chat_id, text = "정각입니다.")
             is_zeongak = True
         else:
             if now.second < 1:
+                bot.send_message(chat_id = chat_id, text = "살아있어요")
                 print(now)
             is_zeongak = False
             time.sleep(1)
@@ -1028,7 +1029,7 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
 
                         future_create_order_market(symbol, SIDE_BUY, amount)
                         future_create_stop_loss_order(symbol, SIDE_SELL, amount, sonjul)
-                        asyncio.run(tele_send_msg("Long"))
+
 
                         if is_print:
                             print(f"롱. 양:{amount}, 손절:{sonjul}")
@@ -1050,7 +1051,6 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
 
                         future_create_order_market(symbol, SIDE_SELL, amount)
                         future_create_stop_loss_order(symbol, SIDE_BUY, amount, sonjul)
-                        asyncio.run(tele_send_msg("Short"))
                         if is_print:
                             print(f"숏. 양:{amount}, 손절:{sonjul}")
                     else:
@@ -1069,7 +1069,6 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
                     future_create_order_market(symbol, SIDE_SELL, amount)
                     future_cancel_all_open_order(symbol)
                     print("익절")
-                    asyncio.run(tele_send_msg("Take profit"))
                 else:
                     print("롱 진입중... ")
                     time.sleep(5)
@@ -1082,16 +1081,12 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
                     future_create_order_market(symbol, SIDE_BUY, abs(amount))
                     future_cancel_all_open_order(symbol)
                     print("익절")
-                    asyncio.run(tele_send_msg("Take profit"))
                 else:
                     print("숏 진입중... ")
                     time.sleep(5)
                     continue
 
         print(f"보류. 기울기 : {day_inclination}")
-
-async def tele_send_msg(text): #실행시킬 함수명 임의지정
-    await bot.send_message(chat_id,text)
 
 def backTesting_bull():
     return print("Hi")
@@ -1123,7 +1118,7 @@ if __name__ == '__main__':
     leverage, amount = get_lev_amt(symbol, True)
 
     leverage = change_leverage(symbol, 10)
-    asyncio.run(tele_send_msg("[Start]"))
+    bot.send_message(chat_id = chat_id, text = "python test")
     do_trading_hwengbo(5, 2, client, symbol, is_print=True)
 
 
