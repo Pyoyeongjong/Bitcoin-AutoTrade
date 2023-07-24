@@ -569,6 +569,9 @@ def calculate_trends(candles_info, start):
 def read_csv_data(time):
     candles_history = pd.read_csv(f"candle_data/candle_data_{time}.csv")
     return candles_history
+def read_csv_data_eth(time):
+    candles_history = pd.read_csv(f"candle_data/eth_candle_data_{time}.csv")
+    return candles_history
 
 
 def add_tag(row):
@@ -733,7 +736,7 @@ def backTesting_hwengbo_2(candles_history_info_1h, candles_history_info_1d, inc,
 # greed = 볼린저밴드만 찍고 반대로 가지 않고 보통 볼린저밴드를 타고 흐른다. 따라서 볼린저밴드를 초과하는 곳을 익절라인으로 잡으면 수익이 극대화되지 않을까?
 #   볼린저밴드 상단을 터치하자마자 생성되게 만든 greed_value는 백테스팅 결과가 좋지 못했다.
 # 각 봉에 따른 upperband를 업데이트 하는것이 더 수익면에서 좋았다.
-def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, sjh, lev, greed, isprint):
+def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, sjh, lev, greed, isprint, k):
     is_bought = False
     is_hwengbo = False  # 횡보 중인가?
 
@@ -756,7 +759,7 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
     is_Short = False
     inc_count = 0  # 기울기 카운트. 1시간봉 종가 기준 횡보 기울기가 연속으로 몇개가 나오면 들어갈 건지에 대해
 
-    for idx, row in candles_history_info_1h.iloc[:].iterrows():
+    for idx, row in candles_history_info_1h.iloc[24*30*k:24*30*(k+1)].iterrows():#24*30*k:24*30*(k+1)
 
         if idx < 100:
             continue
@@ -817,7 +820,7 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                 # 1시간 봉 기준 볼린저밴드 아래에서 마감
                 if lowerband > close:
                     # 거래량이 평균보다 20% 높으면 롱 진입.
-                    if volume > vol_sma * 1.2:
+                    if volume > vol_sma * 0:
                         in_price = close
                         is_bought = True
                         sonjul = close - close * 0.01 * sjh
@@ -831,7 +834,7 @@ def backTesting_hwengbo(candles_history_info_1h, candles_history_info_1d, inc, s
                 # 1시간 봉 기준 볼린저밴드 위에서 마감
                 if close > upperband:
                     # 거래량이 평균보다 20% 높으면 숏 진입.
-                    if volume > vol_sma * 1.2:
+                    if volume > vol_sma * 0:
                         in_price = close
                         is_bought = True
                         sonjul = close + close * 0.01 * sjh
@@ -927,7 +930,36 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
     satoshi = None
     amount = None
 
+    clockprint = False
+    position_text = None
+
+    bot.send_message(chat_id=chat_id, text="#[자동매매 봇]# - COPYRIGHT by 표영종")
+
     while True:
+
+        # 현재 시각
+        now = datetime.now()
+        # 현재 포지션 업데이트
+        get_position(symbol, is_print=False)
+
+        if now.minute > 0:
+            clockprint = False
+            is_zeongak = False
+        # 현재 시각이 정각 지난지 3초 이내일 때
+        if now.minute == 0 and 1 < now.second < 10 and clockprint==False: # now.minute == 0 and
+            print("### 정각 !", now)
+            if is_Long:
+                position_text = "LONG"
+            elif is_Short:
+                position_text = "SHORT"
+            else:
+                position_text = "No Position"
+            bot.send_message(chat_id = chat_id, text = f"[자동매매 봇] - 현재 시각은 {now}입니다.\n포지션: {position_text}")
+            is_zeongak = True
+            clockprint = True
+        else:
+            is_zeongak = False
+            time.sleep(1)
 
         ### 캔들 정보 가져오기 (현재)
         candles_1m, candles_5m, candles_15m, candles_1h, candles_4h, candles_1d, candles_1w = get_candles(client,
@@ -950,6 +982,7 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
         low = row['Low']
         high = row['High']
         dt = row['Time']
+        print(row)
         # 현 봉
         row2 = candles_info_1h.iloc[-1]
         upperband2 = row2['UpperBand']
@@ -960,24 +993,7 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
         low2 = row2['Low']
         high2 = row2['High']
         dt2 = row2['Time']
-
-        # 현재 시각
-        now = datetime.now()
-
-        # 현재 시각이 정각 지난지 3초 이내일 때
-        if now.minute == 0 and now.second < 3: # now.minute == 0 and
-            print("### 정각 !", now)
-            bot.send_message(chat_id = chat_id, text = "정각입니다.")
-            is_zeongak = True
-        else:
-            if now.second < 1:
-                bot.send_message(chat_id = chat_id, text = "살아있어요")
-                print(now)
-            is_zeongak = False
-            time.sleep(1)
-
-        # 현재 포지션 업데이트
-        get_position(symbol, is_print=False)
+        print(row2)
 
         # 사지 않은 상태라면
         if not isOrdered:
@@ -1020,7 +1036,7 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
                 if lowerband > close:
                     print("롱 각")
                     # 거래량이 평균보다 20% 높으면 롱 진입.
-                    if volume > vol_sma * 1.2:
+                    if volume > vol_sma * 0: # 이게 오히려 낫다.
 
                         leverage, amount = get_lev_amt(symbol, True)
                         in_price = close
@@ -1032,17 +1048,21 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
 
 
                         if is_print:
+                            bot.send_message(chat_id = chat_id, text = f"[자동매매 봇] - 롱 진입 \n수량: {amount}\n손절: {sonjul}")
                             print(f"롱. 양:{amount}, 손절:{sonjul}")
                     else:
+                        bot.send_message(chat_id=chat_id,
+                                         text=f"[자동매매 봇] - 거래량이 적습니다.\nVOL: {volume}, VOL_SMA: {vol_sma}")
                         print(f"거래량이 적습니다. VOL: {volume}, VOL_SMA: {vol_sma}")
                 else:
+                    bot.send_message(chat_id=chat_id, text=f"[자동매매 봇] - 볼린저 밴드 Lowerband 위입니다.\nLowerband: {lowerband}\n가격: {close}")
                     print("숏치려 했는데 볼린저밴드 아래")
 
                 # 1시간 봉 기준 볼린저밴드 위에서 마감
                 if close > upperband:
                     print("숏 각")
                     # 거래량이 평균보다 20% 높으면 숏 진입.
-                    if volume > vol_sma * 1.2:
+                    if volume > vol_sma * 0: # 이게 오히려 낫다.
 
                         leverage, amount = get_lev_amt(symbol, True)
                         in_price = close
@@ -1052,11 +1072,19 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
                         future_create_order_market(symbol, SIDE_SELL, amount)
                         future_create_stop_loss_order(symbol, SIDE_BUY, amount, sonjul)
                         if is_print:
+                            bot.send_message(chat_id = chat_id, text = f"[자동매매 봇] - 숏 진입 \n수량: {amount}\n손절: {sonjul}")
                             print(f"숏. 양:{amount}, 손절:{sonjul}")
                     else:
+                        bot.send_message(chat_id=chat_id, text=f"[자동매매 봇] - 거래량이 적습니다.\nVOL: {volume}, VOL_SMA: {vol_sma}")
                         print(f"거래량이 적습니다. VOL: {volume}, VOL_SMA: {vol_sma}")
                 else:
+                    bot.send_message(chat_id=chat_id, text=f"[자동매매 봇] - 볼린저 밴드 Upperband 아래입니다.\nUpperband: {upperband}\n가격: {close}")
                     print("롱치려 했는데 볼린저밴드 위")
+            else:
+                print(f"보류. 기울기 : {day_inclination}")
+                bot.send_message(chat_id=chat_id,
+                                 text=f"[자동매매 봇] - 횡보가 아닙니다. : \n기울기: {day_inclination}\n가격: {close}")
+
 
         else:
 
@@ -1068,10 +1096,11 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
                 if float(low2) <= float(upperband2) <= float(high2):
                     future_create_order_market(symbol, SIDE_SELL, amount)
                     future_cancel_all_open_order(symbol)
+                    bot.send_message(chat_id = chat_id, text = f"[자동매매 봇] - 익절 완료")
                     print("익절")
                 else:
                     print("롱 진입중... ")
-                    time.sleep(5)
+                    time.sleep(1)
                     continue
 
             elif is_Short:
@@ -1080,10 +1109,12 @@ def do_trading_hwengbo(inc, sjh, client, symbol, is_print):
                 if float(low2) <= float(lowerband2) <= float(high2):
                     future_create_order_market(symbol, SIDE_BUY, abs(amount))
                     future_cancel_all_open_order(symbol)
+                    bot.send_message(chat_id = chat_id, text = "[자동매매 봇] - 익절 완료")
                     print("익절")
                 else:
+
                     print("숏 진입중... ")
-                    time.sleep(5)
+                    time.sleep(1)
                     continue
 
         print(f"보류. 기울기 : {day_inclination}")
@@ -1118,8 +1149,9 @@ if __name__ == '__main__':
     leverage, amount = get_lev_amt(symbol, True)
 
     leverage = change_leverage(symbol, 10)
-    bot.send_message(chat_id = chat_id, text = "python test")
+
     do_trading_hwengbo(5, 2, client, symbol, is_print=True)
+
 
 
 
