@@ -8,3 +8,8 @@ https://wikidocs.net/book/1665 참고했어요
 텔레그램 봇 오류
 pip3 uninstall python-telegram-bot
 pip3 install python-telegram-bot==13.14
+
+putty : ubuntu
+비밀번호 알아서 찾고
+
+nohup python3 main.py &
